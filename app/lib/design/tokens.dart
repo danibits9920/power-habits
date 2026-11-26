@@ -22,6 +22,14 @@ class Rad {
 
 const List<FontFeature> kTabular = [FontFeature.tabularFigures()];
 
+// Identidad tipográfica oficial — Opción 1 "Kinetic Precision" (Calm Voltage)
+const String kFontDisplay = 'BricolageGrotesque';
+const String kFontBody = 'PlusJakartaSans';
+const String kFontMono = 'JetBrainsMono';
+
+const String kBrandName = 'Power Habits';
+const String kBrandTagline = 'Pequeños impulsos. Progreso real.';
+
 @immutable
 class PowerColors extends ThemeExtension<PowerColors> {
   const PowerColors({
@@ -193,55 +201,57 @@ ThemeData buildPowerTheme(Brightness brightness) {
 
   final baseText = TextTheme(
     headlineMedium: TextStyle(
-      fontFamily: 'Outfit',
-      fontSize: 26,
-      fontWeight: FontWeight.w700,
-      letterSpacing: -0.6,
+      fontFamily: kFontDisplay,
+      fontSize: 28,
+      fontWeight: FontWeight.w800,
+      letterSpacing: -0.85,
       color: pc.ink,
-      height: 1.15,
+      height: 1.12,
     ),
     titleLarge: TextStyle(
-      fontFamily: 'Outfit',
-      fontSize: 19,
+      fontFamily: kFontDisplay,
+      fontSize: 20,
       fontWeight: FontWeight.w700,
-      letterSpacing: -0.3,
+      letterSpacing: -0.45,
       color: pc.ink,
-      height: 1.2,
+      height: 1.18,
     ),
     titleMedium: TextStyle(
-      fontFamily: 'Outfit',
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-      letterSpacing: -0.15,
+      fontFamily: kFontDisplay,
+      fontSize: 16.5,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.25,
       color: pc.ink,
-      height: 1.25,
+      height: 1.24,
     ),
     bodyLarge: TextStyle(
-      fontFamily: 'WorkSans',
+      fontFamily: kFontBody,
       fontSize: 15,
-      fontWeight: FontWeight.w500,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -0.1,
       color: pc.ink,
-      height: 1.4,
+      height: 1.38,
     ),
     bodyMedium: TextStyle(
-      fontFamily: 'WorkSans',
+      fontFamily: kFontBody,
       fontSize: 14,
-      fontWeight: FontWeight.w400,
+      fontWeight: FontWeight.w500,
       color: pc.ink,
-      height: 1.45,
+      height: 1.44,
     ),
     bodySmall: TextStyle(
-      fontFamily: 'WorkSans',
+      fontFamily: kFontBody,
       fontSize: 12.5,
       fontWeight: FontWeight.w500,
       color: pc.inkMuted,
       height: 1.35,
     ),
     labelMedium: TextStyle(
-      fontFamily: 'WorkSans',
-      fontSize: 12,
+      fontFamily: kFontMono,
+      fontSize: 11.5,
       fontWeight: FontWeight.w600,
       letterSpacing: 0.2,
+      fontFeatures: kTabular,
       color: pc.inkMuted,
     ),
   );
@@ -249,7 +259,7 @@ ThemeData buildPowerTheme(Brightness brightness) {
   return ThemeData(
     useMaterial3: true,
     brightness: brightness,
-    fontFamily: 'WorkSans',
+    fontFamily: kFontBody,
     scaffoldBackgroundColor: pc.bgTop,
     colorScheme: ColorScheme(
       brightness: brightness,

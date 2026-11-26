@@ -776,7 +776,7 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
                       Text(
                         time,
                         style: tt.bodyMedium?.copyWith(
-                          fontFamily: 'Outfit',
+                          fontFamily: kFontMono,
                           fontWeight: FontWeight.w600,
                           fontFeatures: kTabular,
                         ),
@@ -1050,9 +1050,9 @@ class _WeekdayChip extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              fontFamily: 'Outfit',
+              fontFamily: kFontDisplay,
               fontSize: 14,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
               color: selected ? pc.onNeon : pc.inkMuted,
             ),
           ),

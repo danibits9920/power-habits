@@ -273,9 +273,9 @@ class ContextBadge extends StatelessWidget {
       child: Text(
         isWork ? (compact ? 'L' : 'Laboral') : (compact ? 'P' : 'Personal'),
         style: TextStyle(
-          fontFamily: 'WorkSans',
+          fontFamily: kFontBody,
           fontSize: 11,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: isWork ? pc.onWorkSoft : pc.onPinkSoft,
         ),
       ),
@@ -363,9 +363,10 @@ class PrimaryNeonButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(Rad.pill),
           ),
           textStyle: const TextStyle(
-            fontFamily: 'Outfit',
+            fontFamily: kFontDisplay,
             fontSize: 14.5,
             fontWeight: FontWeight.w700,
+            letterSpacing: -0.2,
           ),
         ),
         child: Row(

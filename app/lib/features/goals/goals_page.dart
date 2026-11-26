@@ -731,7 +731,7 @@ class _MilestoneProgressLine extends StatelessWidget {
                 '$m%',
                 style: context.tt.labelMedium?.copyWith(
                   fontSize: 11,
-                  fontFamily: 'Outfit',
+                  fontFamily: kFontMono,
                   fontFeatures: kTabular,
                   fontWeight: pct >= m ? FontWeight.w700 : FontWeight.w500,
                   color: pct >= m ? pc.ink : pc.inkMuted,

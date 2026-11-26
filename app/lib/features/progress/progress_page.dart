@@ -226,9 +226,10 @@ class _AddAchievementPill extends StatelessWidget {
               borderRadius: BorderRadius.circular(Rad.pill),
             ),
             textStyle: const TextStyle(
-              fontFamily: 'Outfit',
+              fontFamily: kFontDisplay,
               fontSize: 14,
               fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
             ),
           ),
           icon: const Icon(LucideIcons.plus, size: 16),
@@ -343,8 +344,8 @@ class _MonthlyConsistencyCardState extends State<_MonthlyConsistencyCard> {
                   child: Text(
                     completedCount == 1 ? '1 día' : '$completedCount días',
                     style: context.tt.labelMedium?.copyWith(
-                      fontFamily: 'Outfit',
-                      fontSize: 13,
+                      fontFamily: kFontMono,
+                      fontSize: 12.5,
                       fontWeight: FontWeight.w700,
                       fontFeatures: kTabular,
                       color: selectedRoutine.context == 'work'
@@ -372,9 +373,9 @@ class _MonthlyConsistencyCardState extends State<_MonthlyConsistencyCard> {
                   monthYearEs(month),
                   textAlign: TextAlign.center,
                   style: context.tt.bodyMedium?.copyWith(
-                    fontFamily: 'Outfit',
+                    fontFamily: kFontDisplay,
                     color: pc.ink,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -649,8 +650,8 @@ class _CalendarDayCell extends StatelessWidget {
           Text(
             '$day',
             style: TextStyle(
-              fontFamily: 'Outfit',
-              fontSize: 13,
+              fontFamily: kFontMono,
+              fontSize: 12.5,
               fontWeight: isToday ? FontWeight.w700 : weight,
               fontFeatures: kTabular,
               color: textColor,
@@ -853,8 +854,10 @@ class _ContextStatBarRow extends StatelessWidget {
             Text(
               '$pct%',
               style: context.tt.titleMedium?.copyWith(
-                fontFamily: 'Outfit',
-                fontWeight: FontWeight.w700,
+                fontFamily: kFontDisplay,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.4,
                 fontFeatures: kTabular,
                 color: pc.ink,
               ),
@@ -899,7 +902,7 @@ class _AchievementsTimelineSection extends StatelessWidget {
               Text(
                 '${achievementsAsync.asData!.value.length}',
                 style: context.tt.labelMedium?.copyWith(
-                  fontFamily: 'Outfit',
+                  fontFamily: kFontMono,
                   fontFeatures: kTabular,
                   color: pc.inkMuted,
                 ),

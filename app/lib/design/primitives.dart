@@ -209,8 +209,9 @@ class MetricPill extends StatelessWidget {
           ],
           Text(
             value,
-            style: tt.titleMedium?.copyWith(
-              fontSize: 13.5,
+            style: tt.labelMedium?.copyWith(
+              fontFamily: kFontMono,
+              fontSize: 12.5,
               fontWeight: FontWeight.w700,
               color: fg,
               fontFeatures: kTabular,

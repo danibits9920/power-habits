@@ -623,9 +623,9 @@ class _DayPill extends StatelessWidget {
                 kShortWeekdays[date.weekday - 1],
                 maxLines: 1,
                 style: TextStyle(
-                  fontFamily: 'WorkSans',
+                  fontFamily: kFontBody,
                   fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                   color: isSelected ? pc.onNeon : pc.inkMuted,
                 ),
               ),
@@ -633,9 +633,10 @@ class _DayPill extends StatelessWidget {
               Text(
                 '${date.day}',
                 style: TextStyle(
-                  fontFamily: 'Outfit',
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
+                  fontFamily: kFontDisplay,
+                  fontSize: 15.5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
                   fontFeatures: kTabular,
                   color: isSelected ? pc.onNeon : pc.ink,
                 ),
@@ -725,9 +726,10 @@ class _DailyProgressCardState extends State<_DailyProgressCard> {
                 AnimatedPercentText(
                   value: widget.progressPct,
                   style: TextStyle(
-                    fontFamily: 'Outfit',
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
+                    fontFamily: kFontDisplay,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.9,
                     fontFeatures: kTabular,
                     color: pc.ink,
                   ),

@@ -192,7 +192,7 @@ class _GoalFormSheetBodyState extends ConsumerState<_GoalFormSheetBody> {
                     textInputAction: TextInputAction.next,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     style: context.tt.bodyLarge?.copyWith(
-                      fontFamily: 'Outfit',
+                      fontFamily: kFontMono,
                       fontWeight: FontWeight.w700,
                       fontFeatures: kTabular,
                     ),

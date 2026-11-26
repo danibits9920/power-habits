@@ -19,32 +19,32 @@ colors:
   work-ink: "#2C2F33"
 typography:
   h1:
-    fontFamily: Outfit
-    fontSize: 1.625rem
-    fontWeight: 700
-    lineHeight: 1.15
-    letterSpacing: "-0.025em"
+    fontFamily: Bricolage Grotesque
+    fontSize: 1.75rem
+    fontWeight: 800
+    lineHeight: 1.12
+    letterSpacing: "-0.032em"
   h2:
-    fontFamily: Outfit
+    fontFamily: Bricolage Grotesque
     fontSize: 1.125rem
-    fontWeight: 600
-    lineHeight: 1.25
-    letterSpacing: "-0.015em"
+    fontWeight: 700
+    lineHeight: 1.24
+    letterSpacing: "-0.018em"
   body-md:
-    fontFamily: Work Sans
+    fontFamily: Plus Jakarta Sans
     fontSize: 0.9375rem
     fontWeight: 500
-    lineHeight: 1.45
+    lineHeight: 1.44
   caption:
-    fontFamily: Work Sans
-    fontSize: 0.75rem
+    fontFamily: Plus Jakarta Sans
+    fontSize: 0.78rem
     fontWeight: 500
     lineHeight: 1.35
   metric:
-    fontFamily: Outfit
-    fontSize: 1.125rem
-    fontWeight: 700
-    lineHeight: 1.1
+    fontFamily: JetBrains Mono
+    fontSize: 0.75rem
+    fontWeight: 600
+    lineHeight: 1.15
 rounded:
   sm: 10px
   md: 16px
@@ -88,10 +88,11 @@ components:
 - **Fluorescent Green (`#6BFF3B`):** Used with strict discipline ONLY for progress fills, completed checkmarks, active day/calendar indicators, and the primary `+1` / save action — ALWAYS paired with deep charcoal ink (`#141517`, >12:1 contrast) and never as raw neon text on white.
 - **Graphite Gray (`#E8EAEE` / `#2C2F33`):** Clean neutral separation for the **Laboral** (work) context without adding extra color noise.
 
-## Typography
+## Typography (Kinetic Precision — Calm Voltage)
 
-- **Outfit** (UI/UX Pro Max *Geometric Modern* pairing) for headings and tabular numbers (`67%`, `14/30`).
-- **Work Sans** for clean, highly legible mobile body copy and routine titles (base 15–16px, line-height 1.45).
+- **Bricolage Grotesque** (`600 SemiBold`, `700 Bold`, `800 ExtraBold`) for expressive brand wordmark, screen headings (`Hoy`, `Metas`, `Progreso`), and hero percentages (`86%`).
+- **Plus Jakarta Sans** (`400–700`) for clean, effortless daily reading in routine cards, quick notes, and forms.
+- **JetBrains Mono** (`500–700`, tabular numerals) for counters, streaks, unit goals (`18/30`), and reminder times (`07:30`).
 
 ## Layout
 

@@ -274,16 +274,16 @@ class SettingsPage extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        const PowerHabitsLogo(size: 42),
+                        const PowerHabitsLogo(size: 46),
                         const SizedBox(width: Sp.x3),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Versión actual', style: tt.titleMedium),
+                              Text(kBrandName, style: tt.titleMedium),
                               const SizedBox(height: 2),
                               Text(
-                                'Power Habits para Android',
+                                kBrandTagline,
                                 style: tt.bodySmall,
                               ),
                             ],

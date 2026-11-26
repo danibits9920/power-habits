@@ -14,12 +14,12 @@ import '../design/brand_logo.dart';
 import '../design/glass.dart';
 import '../design/tokens.dart';
 
-const kAppVersion = '0.3.1';
+const kAppVersion = '0.3.2';
 const kReleasesRepo = 'danibits9920/power-habits';
 const kReleaseNotes = <String>[
-  'Desplazamiento horizontal fluido (swipe) entre Hoy, Metas y Progreso con el indicador neón siguiendo tu dedo 1:1.',
-  'Gran mejora de fluidez (60/120 fps): eliminados los múltiples BackdropFilter apilados en listas que saturaban la GPU y añadido RepaintBoundary en fondo y tarjetas.',
-  'Eliminado el conflicto de gestos horizontales en tarjetas de Hoy para deslizar libremente entre pestañas desde cualquier parte de la pantalla.',
+  'Nueva Identidad de Marca "Calm Voltage": sistema tipográfico Kinetic Precision con Bricolage Grotesque ExtraBold en titulares, Plus Jakarta Sans en lectura diaria y JetBrains Mono en métricas y horas.',
+  'Isotipo oficial "Volt-Check" fiel 1:1 en el ícono nativo de Android (Adaptive Icon + HyperOS), splash animado y variantes Porcelain Daylight (claro) / Carbon Night (oscuro).',
+  'Pesos tipográficos estáticos reales (.ttf offline 400–800) para máxima nitidez y carácter visual en Android.',
 ];
 
 const _updaterChannel = MethodChannel('com.daltex.power_habits/updater');
