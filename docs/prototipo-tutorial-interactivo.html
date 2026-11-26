@@ -1,0 +1,2572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Hábitos — Tutorial Interactivo y Prototipo de Flujos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --desk-bg: #F3F1EC;
+      --desk-surface: #FFFFFF;
+      --desk-surface-2: #F8F7F4;
+      --desk-border: #E4E0D8;
+      --desk-ink: #191A18;
+      --desk-muted: #5F635D;
+      --accent: #157347;
+      --accent-soft: #E7F5EE;
+      --accent-ink: #0F5132;
+      --work: #B45309;
+      --work-soft: #FEF3E2;
+      --work-ink: #92400E;
+      --neutral-pill: #ECEAE4;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-soft: 0 1px 2px rgba(20, 22, 18, 0.04), 0 8px 24px rgba(20, 22, 18, 0.06);
+      --shadow-phone: 0 24px 60px rgba(17, 19, 16, 0.22), 0 2px 8px rgba(17, 19, 16, 0.12);
+      --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      /* Phone theme (Light default) */
+      --ph-bg: #F7F7F4;
+      --ph-card: #FFFFFF;
+      --ph-card-2: #F1F0EB;
+      --ph-border: #E6E4DD;
+      --ph-ink: #181A17;
+      --ph-muted: #676B64;
+      --ph-nav: #FFFFFF;
+      --ph-bar-bg: #E5E7E2;
+      --ph-accent: #157347;
+      --ph-accent-soft: #E6F4EC;
+      --ph-work: #B45309;
+      --ph-work-soft: #FDF2E1;
+      --ph-danger: #B91C1C;
+    }
+
+    .phone-frame.dark {
+      --ph-bg: #111312;
+      --ph-card: #1A1D1B;
+      --ph-card-2: #222623;
+      --ph-border: #2B302C;
+      --ph-ink: #F2F4F1;
+      --ph-muted: #9AA29A;
+      --ph-nav: #161917;
+      --ph-bar-bg: #2A2F2B;
+      --ph-accent: #34D399;
+      --ph-accent-soft: rgba(52, 211, 153, 0.14);
+      --ph-work: #F59E0B;
+      --ph-work-soft: rgba(245, 158, 11, 0.15);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background: var(--desk-bg);
+      color: var(--desk-ink);
+      line-height: 1.45;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select {
+      font-family: inherit;
+    }
+
+    .mono {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Top workspace bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 28px;
+      background: var(--desk-surface);
+      border-bottom: 1px solid var(--desk-border);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: var(--accent);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.02em;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+    }
+
+    .brand p {
+      margin: 0;
+      font-size: 12.5px;
+      color: var(--desk-muted);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip-btn {
+      border: 1px solid var(--desk-border);
+      background: var(--desk-surface);
+      color: var(--desk-ink);
+      padding: 7px 12px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .chip-btn:hover {
+      background: var(--desk-surface-2);
+      border-color: #CFCAC0;
+    }
+
+    .chip-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Main Split Layout */
+    .studio {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 24px 28px 40px;
+      display: grid;
+      grid-template-columns: minmax(340px, 1fr) 416px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* Left Tutorial Column */
+    .guide-col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .stepper-rail {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      background: var(--desk-surface);
+      border: 1px solid var(--desk-border);
+      border-radius: var(--radius-md);
+      padding: 8px;
+    }
+
+    .step-pill {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--desk-muted);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .step-pill:hover {
+      background: var(--desk-surface-2);
+      color: var(--desk-ink);
+    }
+
+    .step-pill.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .step-pill.done:not(.active) {
+      background: var(--accent-soft);
+      color: var(--accent-ink);
+    }
+
+    .step-card {
+      background: var(--desk-surface);
+      border: 1px solid var(--desk-border);
+      border-radius: var(--radius-lg);
+      padding: 26px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .step-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .step-kicker {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-ink);
+      background: var(--accent-soft);
+      padding: 4px 10px;
+      border-radius: 99px;
+    }
+
+    .phase-tag {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 99px;
+      border: 1px solid var(--desk-border);
+      color: var(--desk-muted);
+      background: var(--desk-surface-2);
+    }
+
+    .phase-tag.beta1 {
+      color: var(--accent-ink);
+      border-color: #B7DEC9;
+      background: #F2FAF5;
+    }
+
+    .phase-tag.beta2 {
+      color: var(--work-ink);
+      border-color: #F3D1A1;
+      background: var(--work-soft);
+    }
+
+    .step-title {
+      margin: 0 0 10px;
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      text-wrap: pretty;
+    }
+
+    .step-desc {
+      margin: 0 0 20px;
+      color: var(--desk-muted);
+      font-size: 15px;
+      text-wrap: pretty;
+    }
+
+    .try-box {
+      background: var(--desk-surface-2);
+      border: 1px solid var(--desk-border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      margin-bottom: 18px;
+    }
+
+    .try-box-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .try-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--desk-ink);
+    }
+
+    .try-status {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--desk-muted);
+    }
+
+    .try-status.verified {
+      color: var(--accent-ink);
+    }
+
+    .try-list {
+      margin: 0;
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--desk-ink);
+    }
+
+    .try-cta-row {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      border: none;
+      background: var(--desk-ink);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .action-btn:hover { opacity: 0.88; }
+
+    .action-btn.primary {
+      background: var(--accent);
+    }
+
+    .contrast-box {
+      border-top: 1px solid var(--desk-border);
+      padding-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .contrast-item h4 {
+      margin: 0 0 4px;
+      font-size: 12.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--desk-muted);
+    }
+
+    .contrast-item p {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--desk-ink);
+    }
+
+    .step-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 22px;
+      padding-top: 16px;
+      border-top: 1px solid var(--desk-border);
+    }
+
+    .nav-hint {
+      font-size: 12.5px;
+      color: var(--desk-muted);
+    }
+
+    /* Roadmap compact summary table below guide */
+    .roadmap-card {
+      background: var(--desk-surface);
+      border: 1px solid var(--desk-border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+    }
+
+    .roadmap-card h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      font-size: 13px;
+    }
+
+    .roadmap-col strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12.5px;
+    }
+
+    .roadmap-col ul {
+      margin: 0;
+      padding-left: 16px;
+      color: var(--desk-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    /* Right Phone Column */
+    .phone-col {
+      position: sticky;
+      top: 76px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .phone-chassis {
+      width: 392px;
+      background: #161816;
+      padding: 12px;
+      border-radius: 44px;
+      box-shadow: var(--shadow-phone);
+      border: 1px solid #2C302C;
+    }
+
+    .phone-frame {
+      width: 368px;
+      height: 752px;
+      background: var(--ph-bg);
+      color: var(--ph-ink);
+      border-radius: 34px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    /* Android status bar */
+    .ph-status {
+      height: 34px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ph-muted);
+      flex-shrink: 0;
+      background: var(--ph-bg);
+      z-index: 4;
+    }
+
+    .ph-camera {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #0B0C0B;
+      border: 2px solid #232623;
+    }
+
+    .ph-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 16px 86px;
+      scrollbar-width: thin;
+    }
+
+    /* Simulated Android Push Notification Banner */
+    .push-banner {
+      position: absolute;
+      top: 38px;
+      left: 12px;
+      right: 12px;
+      background: var(--ph-card);
+      border: 1px solid var(--ph-border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+      z-index: 40;
+      transform: translateY(-130%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.2, 1), opacity 0.2s;
+    }
+
+    .push-banner.open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .push-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--ph-muted);
+      margin-bottom: 4px;
+    }
+
+    .push-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0 0 2px;
+    }
+
+    .push-sub {
+      font-size: 12.5px;
+      color: var(--ph-muted);
+      margin: 0 0 10px;
+    }
+
+    .push-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .push-btn {
+      flex: 1;
+      border: 1px solid var(--ph-border);
+      background: var(--ph-card-2);
+      color: var(--ph-ink);
+      padding: 7px 10px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .push-btn.primary {
+      background: var(--ph-accent);
+      border-color: var(--ph-accent);
+      color: #fff;
+    }
+
+    .phone-frame.dark .push-btn.primary {
+      color: #0B1912;
+    }
+
+    /* Toast feedback inside phone */
+    .ph-toast {
+      position: absolute;
+      bottom: 76px;
+      left: 16px;
+      right: 16px;
+      background: #181A17;
+      color: #F7F7F4;
+      padding: 11px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.22s ease;
+      z-index: 35;
+    }
+
+    .phone-frame.dark .ph-toast {
+      background: #EEF2EE;
+      color: #111312;
+    }
+
+    .ph-toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Phone Header & Controls */
+    .ph-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .ph-head h2 {
+      margin: 0;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .ph-date {
+      font-size: 12px;
+      color: var(--ph-muted);
+    }
+
+    .ph-icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--ph-border);
+      background: var(--ph-card);
+      color: var(--ph-ink);
+      font-size: 18px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+    }
+
+    /* Segmented context control */
+    .seg-control {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: var(--ph-card-2);
+      padding: 3px;
+      border-radius: 11px;
+      margin-bottom: 12px;
+      border: 1px solid var(--ph-border);
+    }
+
+    .seg-btn {
+      border: none;
+      background: transparent;
+      color: var(--ph-muted);
+      padding: 7px 6px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .seg-btn.active {
+      background: var(--ph-card);
+      color: var(--ph-ink);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Day Strip */
+    .day-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .day-pill {
+      border: 1px solid var(--ph-border);
+      background: var(--ph-card);
+      color: var(--ph-muted);
+      border-radius: 11px;
+      padding: 7px 4px;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.15s;
+    }
+
+    .day-pill span:first-child {
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .day-pill span:last-child {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ph-ink);
+    }
+
+    .day-pill.active {
+      background: var(--ph-accent);
+      border-color: var(--ph-accent);
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .day-pill.active span:last-child {
+      color: #fff;
+    }
+
+    .phone-frame.dark .day-pill.active,
+    .phone-frame.dark .day-pill.active span:last-child {
+      color: #0B1912;
+    }
+
+    /* Progress Card */
+    .progress-summary {
+      background: var(--ph-card);
+      border: 1px solid var(--ph-border);
+      border-radius: 14px;
+      padding: 13px 14px;
+      margin-bottom: 14px;
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .progress-row strong {
+      font-size: 13.5px;
+    }
+
+    .progress-pct {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ph-accent);
+    }
+
+    .bar-track {
+      height: 8px;
+      background: var(--ph-bar-bg);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--ph-accent);
+      border-radius: 99px;
+      transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .bar-fill.work {
+      background: var(--ph-work);
+    }
+
+    .progress-sub {
+      margin-top: 7px;
+      font-size: 11.5px;
+      color: var(--ph-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Sections by time of day */
+    .block-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ph-muted);
+      margin: 14px 0 7px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .habit-card {
+      background: var(--ph-card);
+      border: 1px solid var(--ph-border);
+      border-radius: 13px;
+      padding: 11px 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      transition: border-color 0.15s, opacity 0.15s;
+    }
+
+    .habit-card.completed {
+      opacity: 0.72;
+    }
+
+    .check-btn {
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      border-radius: 7px;
+      border: 2px solid #BFC4BC;
+      background: transparent;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      margin-top: 1px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      transition: all 0.15s;
+    }
+
+    .habit-card.completed .check-btn {
+      background: var(--ph-accent);
+      border-color: var(--ph-accent);
+    }
+
+    .phone-frame.dark .habit-card.completed .check-btn {
+      color: #0B1912;
+    }
+
+    .habit-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .habit-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .habit-card.completed .habit-title-text {
+      text-decoration: line-through;
+    }
+
+    .ctx-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 5px;
+      letter-spacing: 0.02em;
+    }
+
+    .ctx-badge.personal {
+      background: var(--ph-accent-soft);
+      color: var(--ph-accent);
+    }
+
+    .ctx-badge.laboral {
+      background: var(--ph-work-soft);
+      color: var(--ph-work);
+    }
+
+    .habit-meta {
+      font-size: 11.5px;
+      color: var(--ph-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .note-preview {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--ph-ink);
+      background: var(--ph-card-2);
+      padding: 5px 8px;
+      border-radius: 7px;
+    }
+
+    .mini-icon-btn {
+      border: 1px solid var(--ph-border);
+      background: var(--ph-card-2);
+      color: var(--ph-muted);
+      border-radius: 7px;
+      padding: 4px 7px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .mini-icon-btn:hover {
+      color: var(--ph-ink);
+    }
+
+    /* Goal Progress Line Card */
+    .goal-card {
+      background: var(--ph-card);
+      border: 1px solid var(--ph-border);
+      border-radius: 15px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .goal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .goal-title {
+      margin: 0 0 3px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .goal-count {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ph-accent);
+      white-space: nowrap;
+    }
+
+    .milestone-line {
+      position: relative;
+      margin: 14px 4px 10px;
+    }
+
+    .milestone-track {
+      height: 6px;
+      background: var(--ph-bar-bg);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .milestone-dots {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 10.5px;
+      color: var(--ph-muted);
+    }
+
+    .m-dot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .m-dot.reached {
+      color: var(--ph-accent);
+      font-weight: 700;
+    }
+
+    .goal-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .ph-btn {
+      border: 1px solid var(--ph-border);
+      background: var(--ph-card-2);
+      color: var(--ph-ink);
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      text-align: center;
+    }
+
+    .ph-btn.primary {
+      background: var(--ph-accent);
+      border-color: var(--ph-accent);
+      color: #fff;
+    }
+
+    .phone-frame.dark .ph-btn.primary {
+      color: #0B1912;
+    }
+
+    .steps-drawer {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--ph-border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .step-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: var(--ph-card-2);
+      cursor: pointer;
+    }
+
+    .step-row.done {
+      opacity: 0.65;
+      text-decoration: line-through;
+    }
+
+    /* Calendar Grid (C) */
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .cal-head {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--ph-muted);
+    }
+
+    .cal-cell {
+      aspect-ratio: 1;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--ph-card-2);
+      color: var(--ph-muted);
+    }
+
+    .cal-cell.hit {
+      background: var(--ph-accent);
+      color: #fff;
+    }
+
+    .phone-frame.dark .cal-cell.hit {
+      color: #0B1912;
+    }
+
+    .cal-cell.off {
+      background: transparent;
+      border: 1px dashed var(--ph-border);
+      opacity: 0.5;
+    }
+
+    .cal-cell.today {
+      outline: 2px solid var(--ph-ink);
+      outline-offset: -2px;
+    }
+
+    /* Timeline Achievements */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .tl-item {
+      display: flex;
+      gap: 10px;
+      background: var(--ph-card);
+      border: 1px solid var(--ph-border);
+      border-radius: 12px;
+      padding: 11px 12px;
+    }
+
+    .tl-badge {
+      width: 30px;
+      height: 30px;
+      min-width: 30px;
+      border-radius: 8px;
+      background: var(--ph-accent-soft);
+      color: var(--ph-accent);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .tl-badge.manual {
+      background: var(--ph-work-soft);
+      color: var(--ph-work);
+    }
+
+    /* Android Home Screen Widget View (G) */
+    .android-home {
+      background: linear-gradient(165deg, #24332C 0%, #17201C 58%, #101513 100%);
+      color: #F4F6F4;
+      min-height: 100%;
+      margin: -8px -16px -86px;
+      padding: 18px 16px 32px;
+    }
+
+    .android-clock {
+      text-align: center;
+      margin: 6px 0 18px;
+    }
+
+    .android-clock .time {
+      font-size: 42px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .android-clock .date {
+      font-size: 12.5px;
+      opacity: 0.78;
+      margin-top: 4px;
+    }
+
+    .widget-box {
+      background: var(--ph-card);
+      color: var(--ph-ink);
+      border-radius: 22px;
+      padding: 14px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--ph-border);
+    }
+
+    .widget-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .app-dock {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 26px;
+      padding: 0 8px;
+    }
+
+    .dock-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+    }
+
+    .dock-sq {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.14);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .dock-sq.app-main {
+      background: #157347;
+      color: #fff;
+    }
+
+    /* Bottom Navigation inside phone */
+    .ph-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: var(--ph-nav);
+      border-top: 1px solid var(--ph-border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 6px 8px;
+      z-index: 10;
+    }
+
+    .nav-item {
+      border: none;
+      background: transparent;
+      color: var(--ph-muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border-radius: 10px;
+    }
+
+    .nav-item.active {
+      color: var(--ph-accent);
+      background: var(--ph-accent-soft);
+    }
+
+    .nav-dot {
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    /* Modal Sheet inside phone */
+    .sheet-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 12, 10, 0.45);
+      z-index: 50;
+      display: none;
+      align-items: flex-end;
+    }
+
+    .sheet-backdrop.open {
+      display: flex;
+    }
+
+    .sheet {
+      width: 100%;
+      background: var(--ph-card);
+      color: var(--ph-ink);
+      border-radius: 22px 22px 0 0;
+      padding: 18px 16px 20px;
+      border-top: 1px solid var(--ph-border);
+      max-height: 82%;
+      overflow-y: auto;
+    }
+
+    .sheet h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+
+    .field {
+      margin-bottom: 11px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--ph-muted);
+      margin-bottom: 4px;
+    }
+
+    .field input, .field select {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 9px;
+      border: 1px solid var(--ph-border);
+      background: var(--ph-bg);
+      color: var(--ph-ink);
+      font-size: 13.5px;
+    }
+
+    .reminder-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--ph-card-2);
+      border: 1px solid var(--ph-border);
+      padding: 5px 9px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      margin: 0 6px 6px 0;
+    }
+
+    .phone-caption {
+      font-size: 12px;
+      color: var(--desk-muted);
+      text-align: center;
+    }
+
+    @media (max-width: 980px) {
+      .studio {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+      .phone-col {
+        position: static;
+        order: -1;
+      }
+      .contrast-box, .roadmap-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">MH</div>
+      <div>
+        <h1>Mis Hábitos — Tutorial Interactivo de Flujos</h1>
+        <p>Prototipo funcional en vivo · Flutter + Local-First (Beta) → Supabase</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="chip-btn" id="toggleThemeBtn" type="button">Tema del teléfono: Claro</button>
+      <button class="chip-btn" id="resetBtn" type="button">Reiniciar demo</button>
+    </div>
+  </header>
+
+  <main class="studio">
+    <!-- Left Column: Guided Tutorial -->
+    <section class="guide-col" aria-label="Tutorial interactivo paso a paso">
+      <nav class="stepper-rail" id="stepperRail" aria-label="Pasos del tutorial"></nav>
+
+      <article class="step-card" id="stepCard">
+        <div class="step-meta">
+          <span class="step-kicker" id="stepKicker">Paso 1 de 8</span>
+          <span class="phase-tag beta1" id="stepPhase">Beta 1 · Core</span>
+        </div>
+        <h2 class="step-title" id="stepTitle"></h2>
+        <p class="step-desc" id="stepDesc"></p>
+
+        <div class="try-box">
+          <div class="try-box-head">
+            <span class="try-label">Pruébalo ahora en el teléfono →</span>
+            <span class="try-status" id="tryStatus">Pendiente de probar</span>
+          </div>
+          <ol class="try-list" id="tryList"></ol>
+          <div class="try-cta-row" id="tryCtaRow"></div>
+        </div>
+
+        <div class="contrast-box">
+          <div class="contrast-item">
+            <h4>Cómo te ayuda a tener control</h4>
+            <p id="stepBenefit"></p>
+          </div>
+          <div class="contrast-item">
+            <h4>Contraste de alcance</h4>
+            <p id="stepContrast"></p>
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button class="chip-btn" id="prevStepBtn" type="button">← Anterior</button>
+          <span class="nav-hint mono" id="stepCounter">1 / 8</span>
+          <button class="action-btn primary" id="nextStepBtn" type="button">Siguiente paso →</button>
+        </div>
+      </article>
+
+      <section class="roadmap-card" aria-label="Propuesta de entregas Beta 1 y Beta 2">
+        <h3>Contraste de ejecución: todo A–G entra, en 2 entregas rápidas</h3>
+        <div class="roadmap-grid">
+          <div class="roadmap-col">
+            <strong style="color: var(--accent-ink);">Beta 1 — Usable en tu Redmi en pocos días</strong>
+            <ul>
+              <li>Vista Hoy (`Todo | Personal | Laboral` + Mañana/Tarde/Noche)</li>
+              <li><strong>(A)</strong> Rutinas con frecuencia diaria, interdiaria y días fijos</li>
+              <li><strong>(B)</strong> Múltiples recordatorios locales con acciones rápidas</li>
+              <li><strong>(E)</strong> Metas por unidades (ej. 30 clases) + línea de progreso</li>
+              <li><strong>(F)</strong> Notas rápidas al completar + Logros + Backup JSON</li>
+            </ul>
+          </div>
+          <div class="roadmap-col">
+            <strong style="color: var(--work-ink);">Beta 2 — Analítica y acceso desde pantalla de inicio</strong>
+            <ul>
+              <li><strong>(C)</strong> Calendario mensual y cuadrícula de constancia por rutina</li>
+              <li><strong>(D)</strong> Estadísticas semanales/mensuales Personal vs. Laboral</li>
+              <li><strong>(G)</strong> Widget nativo de Android (4×2) con check en 1 toque</li>
+              <li><strong>Fase 3:</strong> Sincronización con Supabase (esquema UUID ya listo)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Right Column: Live Interactive Phone Simulator -->
+    <aside class="phone-col" aria-label="Simulador móvil interactivo">
+      <div class="phone-chassis">
+        <div class="phone-frame" id="phoneFrame">
+          <div class="ph-status">
+            <span class="mono">09:41</span>
+            <div class="ph-camera" aria-hidden="true"></div>
+            <span class="mono">5G · 86%</span>
+          </div>
+
+          <!-- Simulated Android Push Notification -->
+          <div class="push-banner" id="pushBanner" role="alert">
+            <div class="push-top">
+              <strong>Mis Hábitos · Recordatorio</strong>
+              <span class="mono" id="pushTime">18:30</span>
+            </div>
+            <p class="push-title" id="pushTitle">Salir a caminar (30 min)</p>
+            <p class="push-sub" id="pushSub">Rutina Personal · Bloque Tarde</p>
+            <div class="push-actions">
+              <button class="push-btn primary" id="pushDoneBtn" type="button">Marcar hecho</button>
+              <button class="push-btn" id="pushSnoozeBtn" type="button">Posponer 30 min</button>
+            </div>
+          </div>
+
+          <!-- Screen Body -->
+          <div class="ph-body" id="phoneBody"></div>
+
+          <!-- Micro-feedback Toast -->
+          <div class="ph-toast" id="phoneToast" role="status" aria-live="polite">
+            <span id="toastMsg"></span>
+          </div>
+
+          <!-- Bottom Navigation -->
+          <nav class="ph-nav" id="phoneNav" aria-label="Navegación principal de la app">
+            <button class="nav-item active" data-tab="hoy" type="button">
+              <span class="nav-dot">◉</span>
+              <span>Hoy</span>
+            </button>
+            <button class="nav-item" data-tab="metas" type="button">
+              <span class="nav-dot">▬</span>
+              <span>Metas</span>
+            </button>
+            <button class="nav-item" data-tab="progreso" type="button">
+              <span class="nav-dot">▦</span>
+              <span>Progreso</span>
+            </button>
+            <button class="nav-item" data-tab="widget" type="button">
+              <span class="nav-dot">⊞</span>
+              <span>Widget</span>
+            </button>
+          </nav>
+
+          <!-- Reusable Bottom Sheet -->
+          <div class="sheet-backdrop" id="sheetBackdrop">
+            <div class="sheet" id="sheetContent"></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-caption">Simulador interactivo · Todo lo que toques actualiza el estado real de la demo</div>
+    </aside>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "mis_habitos_proto_v1";
+
+    const DAYS = [
+      { id: 0, label: "Lun", num: 23, parity: 1 },
+      { id: 1, label: "Mar", num: 24, parity: 0 },
+      { id: 2, label: "Mié", num: 25, parity: 1, isToday: true },
+      { id: 3, label: "Jue", num: 26, parity: 0 },
+      { id: 4, label: "Vie", num: 27, parity: 1 }
+    ];
+
+    const DEFAULT_STATE = {
+      step: 0,
+      tab: "hoy",
+      context: "todo", // todo | personal | laboral
+      selectedDay: 2, // Mié 25 (Hoy)
+      dark: false,
+      triedSteps: {},
+      selectedCalHabit: "h-caminar",
+      expandedGoal: true,
+      items: [
+        {
+          id: "h-skincare-am",
+          type: "rutina",
+          title: "Skincare mañana (limpieza + protector)",
+          context: "personal",
+          slot: "manana",
+          freq: "Diaria",
+          freqRule: "daily",
+          reminders: ["07:15"],
+          doneByDay: { 0: true, 1: true, 2: true },
+          notesByDay: { 2: "Listo antes de empezar a trabajar" },
+          monthHits: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]
+        },
+        {
+          id: "h-ejercicio",
+          type: "rutina",
+          title: "Rutina de ejercicio (40 min)",
+          context: "personal",
+          slot: "manana",
+          freq: "Lun · Mié · Vie",
+          freqRule: "mwf",
+          reminders: ["06:45", "17:30"],
+          doneByDay: { 0: true, 2: false },
+          notesByDay: { 0: "Fuerza tren superior + 15 min cardio" },
+          monthHits: [2,4,6,9,11,13,16,18,20,23]
+        },
+        {
+          id: "t-tigo",
+          type: "tarea",
+          title: "Revisar avances y pendientes del sprint",
+          context: "laboral",
+          slot: "manana",
+          freq: "Tarea de hoy",
+          freqRule: "daily",
+          reminders: ["09:30"],
+          doneByDay: { 2: true },
+          notesByDay: {}
+        },
+        {
+          id: "t-molitech",
+          type: "tarea",
+          title: "Confirmar pedidos y catálogo de Molitech",
+          context: "laboral",
+          slot: "tarde",
+          freq: "Tarea de hoy",
+          freqRule: "daily",
+          reminders: ["14:00", "17:00"],
+          doneByDay: { 2: false },
+          notesByDay: {}
+        },
+        {
+          id: "h-caminar",
+          type: "rutina",
+          title: "Salir a caminar (30 min)",
+          context: "personal",
+          slot: "tarde",
+          freq: "Diaria",
+          freqRule: "daily",
+          reminders: ["18:30"],
+          doneByDay: { 0: true, 1: true, 2: false },
+          notesByDay: { 1: "3.8 km ritmo constante" },
+          monthHits: [1,2,4,5,6,8,9,10,12,13,15,16,17,19,20,21,22,23,24]
+        },
+        {
+          id: "h-skincare-alt",
+          type: "rutina",
+          title: "Skincare noche (rutina activa)",
+          context: "personal",
+          slot: "noche",
+          freq: "Interdiaria (cada 2 días)",
+          freqRule: "alternate",
+          reminders: ["21:30"],
+          doneByDay: { 0: true, 2: false },
+          notesByDay: {},
+          monthHits: [1,3,5,7,9,11,13,15,17,19,21,23]
+        }
+      ],
+      goals: [
+        {
+          id: "g-curso",
+          title: "Curso completo de arquitectura",
+          context: "personal",
+          unitLabel: "clases",
+          current: 14,
+          total: 30,
+          milestonesReached: [25],
+          steps: [
+            { num: 13, title: "Clase 13 — Diseño de capas y repositorios", done: true },
+            { num: 14, title: "Clase 14 — Persistencia local con Drift", done: true },
+            { num: 15, title: "Clase 15 — Notificaciones locales y zonas horarias", done: false },
+            { num: 16, title: "Clase 16 — Estrategia de sincronización con Supabase", done: false }
+          ]
+        },
+        {
+          id: "g-caminata",
+          title: "Meta mensual: 25 caminatas",
+          context: "personal",
+          unitLabel: "salidas",
+          current: 19,
+          total: 25,
+          milestonesReached: [25, 50, 75],
+          steps: []
+        },
+        {
+          id: "g-laboral",
+          title: "Documentar módulos clave del trimestre",
+          context: "laboral",
+          unitLabel: "módulos",
+          current: 4,
+          total: 8,
+          milestonesReached: [25, 50],
+          steps: []
+        }
+      ],
+      achievements: [
+        {
+          id: "a-1",
+          kind: "auto",
+          date: "24 Nov",
+          title: "7 días seguidos saliendo a caminar",
+          detail: "Constancia automática · Rutina Personal"
+        },
+        {
+          id: "a-2",
+          kind: "auto",
+          date: "22 Nov",
+          title: "50 % completado — Documentar módulos",
+          detail: "Hito de meta · Contexto Laboral"
+        },
+        {
+          id: "a-3",
+          kind: "manual",
+          date: "20 Nov",
+          title: "Primera semana cerrando el día con control",
+          detail: "Logro personal registrado manualmente"
+        }
+      ]
+    };
+
+    const STEPS = [
+      {
+        id: "hoy",
+        short: "1. Hoy",
+        phase: "Beta 1 · Core",
+        phaseClass: "beta1",
+        tab: "hoy",
+        title: "Vista Hoy: Personal vs. Laboral + bloques del día",
+        desc: "Una sola pantalla te devuelve control del día sin mezclar contextos. Arriba cambias entre Todo, Personal y Laboral en un toque; debajo tus rutinas y tareas se ordenan por Mañana, Tarde y Noche.",
+        tryItems: [
+          "Cambia el filtro superior entre Todo, Personal y Laboral.",
+          "Marca alguna rutina o tarea pendiente y mira cómo sube tu barra de progreso del día."
+        ],
+        benefit: "En horario laboral ves solo lo del trabajo; al salir cambias a Personal y no arrastras estrés mental.",
+        contrast: "Mantiene la pantalla principal limpia y enfocada: solo muestra lo que corresponde hoy."
+      },
+      {
+        id: "freq",
+        short: "2. (A) Frecuencias",
+        phase: "Beta 1 · Core",
+        phaseClass: "beta1",
+        tab: "hoy",
+        title: "(A) Rutinas ilimitadas con frecuencias flexibles",
+        desc: "No todos los hábitos son diarios. Soporta rutina diaria (caminar), interdiaria cada 2 días (skincare noche) o días específicos (ejercicio Lun/Mié/Vie). Si hoy no toca, ni siquiera te estorba.",
+        tryItems: [
+          "Toca el día Jue 26 en la tira superior: verás que Ejercicio y Skincare noche desaparecen automáticamente porque no tocan jueves.",
+          "Toca el botón + arriba a la derecha para ver el creador de rutinas con frecuencia flexible."
+        ],
+        cta: { label: "Abrir creador de rutina (+)", action: "openNewRoutine" },
+        benefit: "Elimina la culpa de ver tareas sin marcar en días de descanso y evita muros de pago por límite de rutinas.",
+        contrast: "Es indispensable en Beta 1 porque tu rutina de skincare y ejercicio ya funcionan así."
+      },
+      {
+        id: "reminders",
+        short: "3. (B) Recordatorios",
+        phase: "Beta 1 · Core",
+        phaseClass: "beta1",
+        tab: "hoy",
+        title: "(B) Múltiples recordatorios locales con acción directa",
+        desc: "Cada rutina o tarea puede tener varias horas (ej. ejercicio a las 06:45 y respaldo a las 17:30). Como es Flutter local-first, las notificaciones salen puntuales incluso sin internet y permiten actuar sin abrir la app.",
+        tryItems: [
+          "Pulsa el botón para simular una notificación real de Android en el teléfono.",
+          "Responde con 'Marcar hecho' o 'Posponer 30 min' directamente desde el aviso, o toca '⏰' en una rutina para editar sus horas."
+        ],
+        cta: { label: "Simular recordatorio Android ahora", action: "simulatePush" },
+        benefit: "Convierte el recordatorio en acción en 2 segundos, evitando deslizarlo y olvidarlo.",
+        contrast: "En Flutter con flutter_local_notifications es rápido y confiable desde Beta 1."
+      },
+      {
+        id: "goals",
+        short: "4. (E) Metas",
+        phase: "Beta 1 · Core",
+        phaseClass: "beta1",
+        tab: "metas",
+        title: "(E) Metas por unidades y línea de progreso con hitos",
+        desc: "Para estudios como tu curso de 30 clases, cada clase mueve una línea visual con hitos (25 %, 50 %, 75 %, 100 %). Tienes botón rápido +1 para cero fricción, y lista opcional de clases/módulos nombrados.",
+        tryItems: [
+          "Pulsa '+1 clase' (o marca la Clase 15 en la lista) en el curso de 30 clases.",
+          "Al pasar de 14/30 a 15/30 verás cruzar el hito del 50 % y desbloquearse un logro automáticamente."
+        ],
+        benefit: "Te da esa sensación satisfactoria de progreso real: ves exactamente cuánto llevas y cuánto falta.",
+        contrast: "Contador rápido por defecto + pasos nombrados opcionales te da velocidad sin limitar el detalle."
+      },
+      {
+        id: "notes",
+        short: "5. (F) Notas",
+        phase: "Beta 1 · Core",
+        phaseClass: "beta1",
+        tab: "hoy",
+        title: "(F) Notas rápidas al completar",
+        desc: "A veces marcar 'hecho' no basta: quieres dejar constancia de cuánto caminaste o qué tema viste en la clase. Cada ítem permite guardar una nota de 1 línea sin convertir la app en un diario pesado.",
+        tryItems: [
+          "Toca el botón 'Nota' en cualquier rutina o tarea (por ejemplo Salir a caminar).",
+          "Escribe algo breve como 'Caminé 4.2 km' y guárdalo para verlo reflejado al instante."
+        ],
+        cta: { label: "Abrir nota en 'Salir a caminar'", action: "openQuickNote" },
+        benefit: "Construye contexto real de tu esfuerzo para mirar atrás y sentir orgullo por tu avance.",
+        contrast: "Siempre opcional: 1 toque para marcar rápido, y 1 toque extra solo cuando quieras anotar algo."
+      },
+      {
+        id: "stats",
+        short: "6. (C+D) Historial",
+        phase: "Beta 2 · Analítica",
+        phaseClass: "beta2",
+        tab: "progreso",
+        title: "(C) Historial visual mensual y (D) Estadísticas por contexto",
+        desc: "En la pestaña Progreso ves tu constancia real en un calendario por rutina (sin castigarte por un día fallado) y el porcentaje semanal/mensual separado en Personal vs. Laboral.",
+        tryItems: [
+          "Cambia la rutina seleccionada en el calendario (Skincare, Ejercicio, Caminar) para ver cómo distingue días cumplidos y días que no tocaban.",
+          "Revisa las barras comparativas de cumplimiento Personal vs. Laboral."
+        ],
+        benefit: "Te muestra patrones objetivos (ej. cumples 86 % en Laboral pero 62 % en Personal) para ajustar tu rutina con datos.",
+        contrast: "Propuesto para Beta 2: los datos se guardan desde Beta 1, así que al activar esta vista ya tendrás historial real."
+      },
+      {
+        id: "achievements",
+        short: "7. Logros",
+        phase: "Beta 1 · Core",
+        phaseClass: "beta1",
+        tab: "progreso",
+        title: "Línea de tiempo de Logros (automáticos + manuales)",
+        desc: "Tus hitos automáticos (50 % de un curso, 7 días constantes) conviven con logros personales que tú decides guardar. Es tu prueba visible de que sí estás construyendo disciplina.",
+        tryItems: [
+          "Desplázate a la sección 'Línea de logros' en la pestaña Progreso.",
+          "Pulsa '+ Registrar logro' para guardar un logro manual y verlo sumarse arriba de tu historial."
+        ],
+        cta: { label: "Abrir '+ Registrar logro'", action: "openNewAchievement" },
+        benefit: "Combate la sensación de 'no avanzo': en los días pesados miras tu historial y ves todo lo que ya lograste.",
+        contrast: "Sin puntos artificiales ni castigos: logros reales ligados a tu vida."
+      },
+      {
+        id: "widget",
+        short: "8. (G) Widget",
+        phase: "Beta 2 · Android",
+        phaseClass: "beta2",
+        tab: "widget",
+        title: "(G) Widget en la pantalla de inicio de Android",
+        desc: "Tu progreso del día siempre visible apenas desbloqueas el teléfono. Puedes marcar tus próximas rutinas con 1 toque desde el escritorio de Android, y queda sincronizado al instante con la app.",
+        tryItems: [
+          "Marca una rutina directamente dentro del widget en la pantalla de inicio simulada.",
+          "Toca el ícono 'MH' abajo o vuelve a 'Hoy' para comprobar que el progreso se actualizó en la app."
+        ],
+        benefit: "Fricción cero: recordar tus hábitos ocurre de forma pasiva cada vez que ves tu teléfono.",
+        contrast: "Propuesto para Beta 2 porque los widgets nativos Android requieren configuración Kotlin/XML aparte y no conviene que frenen la Beta 1."
+      }
+    ];
+
+    function cloneDefault() {
+      return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return cloneDefault();
+        const parsed = JSON.parse(raw);
+        return { ...cloneDefault(), ...parsed };
+      } catch {
+        return cloneDefault();
+      }
+    }
+
+    let state = loadState();
+    let toastTimer = null;
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {}
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById("phoneToast");
+      document.getElementById("toastMsg").textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+    }
+
+    function markStepTried(stepId) {
+      if (!state.triedSteps[stepId]) {
+        state.triedSteps[stepId] = true;
+        saveState();
+        renderGuide();
+      }
+    }
+
+    function itemAppliesToDay(item, dayIndex) {
+      if (item.type === "tarea") return dayIndex === 2; // tareas de hoy
+      if (item.freqRule === "daily") return true;
+      if (item.freqRule === "mwf") return [0, 2, 4].includes(dayIndex);
+      if (item.freqRule === "alternate") return DAYS[dayIndex].parity === 1;
+      return true;
+    }
+
+    function getVisibleItems(dayIndex, ctx) {
+      return state.items.filter(item => {
+        if (!itemAppliesToDay(item, dayIndex)) return false;
+        if (ctx !== "todo" && item.context !== ctx) return false;
+        return true;
+      });
+    }
+
+    function calcDayProgress(dayIndex, ctx) {
+      const list = getVisibleItems(dayIndex, ctx);
+      if (!list.length) return { done: 0, total: 0, pct: 0 };
+      const done = list.filter(i => i.doneByDay && i.doneByDay[dayIndex]).length;
+      return { done, total: list.length, pct: Math.round((done / list.length) * 100) };
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+      }[s]));
+    }
+
+    /* Render Left Tutorial Column */
+    function renderGuide() {
+      const rail = document.getElementById("stepperRail");
+      rail.innerHTML = STEPS.map((s, idx) => {
+        const cls = [
+          "step-pill",
+          idx === state.step ? "active" : "",
+          state.triedSteps[s.id] ? "done" : ""
+        ].join(" ");
+        const check = state.triedSteps[s.id] && idx !== state.step ? "✓ " : "";
+        return `<button class="${cls}" type="button" data-step="${idx}">${check}${s.short}</button>`;
+      }).join("");
+
+      const current = STEPS[state.step];
+      document.getElementById("stepKicker").textContent = `Paso ${state.step + 1} de ${STEPS.length}`;
+      const phaseEl = document.getElementById("stepPhase");
+      phaseEl.textContent = current.phase;
+      phaseEl.className = `phase-tag ${current.phaseClass}`;
+      document.getElementById("stepTitle").textContent = current.title;
+      document.getElementById("stepDesc").textContent = current.desc;
+      document.getElementById("stepBenefit").textContent = current.benefit;
+      document.getElementById("stepContrast").textContent = current.contrast;
+      document.getElementById("stepCounter").textContent = `${state.step + 1} / ${STEPS.length}`;
+
+      const tried = Boolean(state.triedSteps[current.id]);
+      const statusEl = document.getElementById("tryStatus");
+      statusEl.textContent = tried ? "✓ Probado en el simulador" : "Interactúa en el teléfono";
+      statusEl.className = `try-status ${tried ? "verified" : ""}`;
+
+      document.getElementById("tryList").innerHTML = current.tryItems
+        .map(t => `<li>${escapeHtml(t)}</li>`).join("");
+
+      const ctaRow = document.getElementById("tryCtaRow");
+      if (current.cta) {
+        ctaRow.innerHTML = `<button class="action-btn" type="button" data-cta="${current.cta.action}">${escapeHtml(current.cta.label)}</button>`;
+      } else {
+        ctaRow.innerHTML = "";
+      }
+
+      document.getElementById("prevStepBtn").disabled = state.step === 0;
+      const nextBtn = document.getElementById("nextStepBtn");
+      nextBtn.textContent = state.step === STEPS.length - 1 ? "Volver al Paso 1 ↺" : "Siguiente paso →";
+
+      document.getElementById("toggleThemeBtn").textContent =
+        `Tema del teléfono: ${state.dark ? "Oscuro" : "Claro"}`;
+    }
+
+    /* Render Phone Screen */
+    function renderPhone() {
+      const frame = document.getElementById("phoneFrame");
+      frame.classList.toggle("dark", state.dark);
+
+      document.querySelectorAll("#phoneNav .nav-item").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.tab === state.tab);
+      });
+
+      const body = document.getElementById("phoneBody");
+      if (state.tab === "hoy") renderHoy(body);
+      else if (state.tab === "metas") renderMetas(body);
+      else if (state.tab === "progreso") renderProgreso(body);
+      else if (state.tab === "widget") renderWidget(body);
+    }
+
+    function renderHoy(container) {
+      const dayObj = DAYS[state.selectedDay];
+      const prog = calcDayProgress(state.selectedDay, state.context);
+      const visible = getVisibleItems(state.selectedDay, state.context);
+
+      const slots = [
+        { key: "manana", label: "Mañana" },
+        { key: "tarde", label: "Tarde" },
+        { key: "noche", label: "Noche" }
+      ];
+
+      const blocksHtml = slots.map(slot => {
+        const list = visible.filter(i => i.slot === slot.key);
+        if (!list.length) return "";
+        return `
+          <div class="block-title">
+            <span>${slot.label}</span>
+            <span class="mono">${list.filter(i => i.doneByDay[state.selectedDay]).length}/${list.length}</span>
+          </div>
+          <div class="item-list">
+            ${list.map(item => {
+              const done = Boolean(item.doneByDay && item.doneByDay[state.selectedDay]);
+              const note = item.notesByDay && item.notesByDay[state.selectedDay];
+              return `
+                <div class="habit-card ${done ? "completed" : ""}">
+                  <button class="check-btn" type="button" data-toggle-item="${item.id}" aria-label="Marcar ${escapeHtml(item.title)}">
+                    ${done ? "✓" : ""}
+                  </button>
+                  <div class="habit-main">
+                    <div class="habit-title">
+                      <span class="habit-title-text">${escapeHtml(item.title)}</span>
+                      <span class="ctx-badge ${item.context}">${item.context === "personal" ? "Personal" : "Laboral"}</span>
+                    </div>
+                    <div class="habit-meta">
+                      <span>${escapeHtml(item.freq)}</span>
+                      ${item.reminders && item.reminders.length ? `<span class="mono">⏰ ${item.reminders.join(", ")}</span>` : ""}
+                    </div>
+                    ${note ? `<div class="note-preview">“${escapeHtml(note)}”</div>` : ""}
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:5px;">
+                    <button class="mini-icon-btn" type="button" data-open-note="${item.id}">Nota</button>
+                    <button class="mini-icon-btn" type="button" data-open-reminders="${item.id}">⏰</button>
+                  </div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        `;
+      }).join("");
+
+      const hiddenCount = state.items.filter(i => !itemAppliesToDay(i, state.selectedDay) && (state.context === "todo" || i.context === state.context)).length;
+
+      container.innerHTML = `
+        <div class="ph-head">
+          <div>
+            <h2>${dayObj.isToday ? "Hoy" : `${dayObj.label} ${dayObj.num}`}</h2>
+            <div class="ph-date">Noviembre 2026 · ${state.context === "todo" ? "Vista completa" : state.context === "personal" ? "Solo Personal" : "Solo Laboral"}</div>
+          </div>
+          <button class="ph-icon-btn" type="button" data-action="openNewRoutine" aria-label="Nueva rutina">+</button>
+        </div>
+
+        <div class="seg-control" role="tablist" aria-label="Filtrar contexto">
+          <button class="seg-btn ${state.context === "todo" ? "active" : ""}" data-ctx="todo" type="button">Todo</button>
+          <button class="seg-btn ${state.context === "personal" ? "active" : ""}" data-ctx="personal" type="button">Personal</button>
+          <button class="seg-btn ${state.context === "laboral" ? "active" : ""}" data-ctx="laboral" type="button">Laboral</button>
+        </div>
+
+        <div class="day-strip">
+          ${DAYS.map(d => `
+            <button class="day-pill ${d.id === state.selectedDay ? "active" : ""}" data-day="${d.id}" type="button">
+              <span>${d.label}</span>
+              <span class="mono">${d.num}</span>
+            </button>
+          `).join("")}
+        </div>
+
+        <div class="progress-summary">
+          <div class="progress-row">
+            <strong>Progreso del día</strong>
+            <span class="progress-pct mono">${prog.pct}%</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill ${state.context === "laboral" ? "work" : ""}" style="width:${prog.pct}%"></div>
+          </div>
+          <div class="progress-sub">
+            <span>${prog.done} de ${prog.total} completadas</span>
+            <span>${hiddenCount > 0 ? `${hiddenCount} no tocan este día` : "Todo al día"}</span>
+          </div>
+        </div>
+
+        ${blocksHtml || `<p style="text-align:center;color:var(--ph-muted);font-size:13px;padding:24px 0;">No hay rutinas o tareas para este filtro.</p>`}
+      `;
+    }
+
+    function renderMetas(container) {
+      const filteredGoals = state.goals.filter(g => state.context === "todo" || g.context === state.context);
+      container.innerHTML = `
+        <div class="ph-head">
+          <div>
+            <h2>Metas</h2>
+            <div class="ph-date">Línea de progreso por unidades e hitos</div>
+          </div>
+        </div>
+
+        <div class="seg-control">
+          <button class="seg-btn ${state.context === "todo" ? "active" : ""}" data-ctx="todo" type="button">Todo</button>
+          <button class="seg-btn ${state.context === "personal" ? "active" : ""}" data-ctx="personal" type="button">Personal</button>
+          <button class="seg-btn ${state.context === "laboral" ? "active" : ""}" data-ctx="laboral" type="button">Laboral</button>
+        </div>
+
+        ${filteredGoals.map(g => {
+          const pct = Math.min(100, Math.round((g.current / g.total) * 100));
+          const milestones = [0, 25, 50, 75, 100];
+          const isCourse = g.id === "g-curso";
+          return `
+            <div class="goal-card">
+              <div class="goal-head">
+                <div>
+                  <h3 class="goal-title">${escapeHtml(g.title)}</h3>
+                  <span class="ctx-badge ${g.context}">${g.context === "personal" ? "Personal" : "Laboral"}</span>
+                </div>
+                <span class="goal-count mono">${g.current}/${g.total} ${g.unitLabel}</span>
+              </div>
+
+              <div class="milestone-line">
+                <div class="milestone-track">
+                  <div class="bar-fill ${g.context === "laboral" ? "work" : ""}" style="width:${pct}%"></div>
+                </div>
+                <div class="milestone-dots mono">
+                  ${milestones.map(m => `
+                    <span class="m-dot ${pct >= m ? "reached" : ""}">${m}%</span>
+                  `).join("")}
+                </div>
+              </div>
+
+              <div class="goal-actions">
+                <button class="ph-btn primary" type="button" data-inc-goal="${g.id}" ${g.current >= g.total ? "disabled" : ""}>
+                  ${g.current >= g.total ? "Meta completada ✓" : `+1 ${g.unitLabel.replace(/s$/, "")}`}
+                </button>
+                ${isCourse ? `<button class="ph-btn" type="button" data-toggle-steps="1">${state.expandedGoal ? "Ocultar clases" : "Ver clases"}</button>` : ""}
+              </div>
+
+              ${isCourse && state.expandedGoal ? `
+                <div class="steps-drawer">
+                  <div style="font-size:11px;font-weight:700;color:var(--ph-muted);text-transform:uppercase;">Pasos nombrados (opcional)</div>
+                  ${g.steps.map(st => `
+                    <div class="step-row ${st.done ? "done" : ""}" data-toggle-step="${st.num}">
+                      <span class="mono" style="font-weight:700;">${st.done ? "☑" : "☐"}</span>
+                      <span>${escapeHtml(st.title)}</span>
+                    </div>
+                  `).join("")}
+                </div>
+              ` : ""}
+            </div>
+          `;
+        }).join("")}
+      `;
+    }
+
+    function renderProgreso(container) {
+      const routines = state.items.filter(i => i.type === "rutina");
+      const activeHabit = routines.find(r => r.id === state.selectedCalHabit) || routines[0];
+      const hits = new Set(activeHabit.monthHits || []);
+      if (activeHabit.doneByDay && activeHabit.doneByDay[2]) hits.add(25);
+      else hits.delete(25);
+
+      const dayHeaders = ["L","M","X","J","V","S","D"];
+      let cellsHtml = dayHeaders.map(d => `<div class="cal-head">${d}</div>`).join("");
+      for (let d = 1; d <= 30; d++) {
+        let isScheduled = true;
+        if (activeHabit.freqRule === "mwf") isScheduled = [2,4,6,9,11,13,16,18,20,23,25,27,30].includes(d);
+        if (activeHabit.freqRule === "alternate") isScheduled = d % 2 === 1;
+        const hit = hits.has(d);
+        const cls = ["cal-cell", "mono"];
+        if (hit) cls.push("hit");
+        else if (!isScheduled) cls.push("off");
+        if (d === 25) cls.push("today");
+        cellsHtml += `<div class="${cls.join(" ")}">${d}</div>`;
+      }
+
+      const personalProg = calcDayProgress(2, "personal");
+      const workProg = calcDayProgress(2, "laboral");
+      const personalMonth = Math.min(100, 74 + Math.round(personalProg.pct * 0.12));
+      const workMonth = Math.min(100, 82 + Math.round(workProg.pct * 0.1));
+
+      container.innerHTML = `
+        <div class="ph-head">
+          <div>
+            <h2>Progreso y Logros</h2>
+            <div class="ph-date">Constancia real sin rachas punitivas</div>
+          </div>
+          <button class="mini-icon-btn" type="button" data-action="openNewAchievement">+ Logro</button>
+        </div>
+
+        <div class="goal-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <strong style="font-size:13.5px;">Calendario mensual (C)</strong>
+            <span class="mono" style="font-size:12px;color:var(--ph-accent);">${hits.size} días cumplidos</span>
+          </div>
+          <select id="calHabitSelect" style="width:100%;padding:8px 10px;border-radius:9px;border:1px solid var(--ph-border);background:var(--ph-bg);color:var(--ph-ink);font-size:12.5px;font-weight:600;">
+            ${routines.map(r => `<option value="${r.id}" ${r.id === activeHabit.id ? "selected" : ""}>${escapeHtml(r.title)} (${escapeHtml(r.freq)})</option>`).join("")}
+          </select>
+          <div class="cal-grid">${cellsHtml}</div>
+          <div style="display:flex;gap:12px;margin-top:9px;font-size:11px;color:var(--ph-muted);">
+            <span>■ Cumplido</span>
+            <span>□ Pendiente</span>
+            <span>◌ No tocaba</span>
+          </div>
+        </div>
+
+        <div class="goal-card">
+          <strong style="font-size:13.5px;display:block;margin-bottom:10px;">Estadísticas del mes (D)</strong>
+          <div style="margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;">
+              <span>Contexto Personal</span>
+              <strong class="mono" style="color:var(--ph-accent);">${personalMonth}%</strong>
+            </div>
+            <div class="bar-track"><div class="bar-fill" style="width:${personalMonth}%"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;">
+              <span>Contexto Laboral</span>
+              <strong class="mono" style="color:var(--ph-work);">${workMonth}%</strong>
+            </div>
+            <div class="bar-track"><div class="bar-fill work" style="width:${workMonth}%"></div></div>
+          </div>
+        </div>
+
+        <div class="block-title">
+          <span>Línea de logros (automáticos + manuales)</span>
+          <span class="mono">${state.achievements.length}</span>
+        </div>
+        <div class="timeline">
+          ${state.achievements.map(a => `
+            <div class="tl-item">
+              <div class="tl-badge ${a.kind === "manual" ? "manual" : ""}">${a.kind === "auto" ? "★" : "✎"}</div>
+              <div>
+                <div style="font-size:13px;font-weight:700;">${escapeHtml(a.title)}</div>
+                <div style="font-size:11.5px;color:var(--ph-muted);">${escapeHtml(a.date)} · ${escapeHtml(a.detail)}</div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderWidget(container) {
+      const prog = calcDayProgress(2, "todo");
+      const topItems = getVisibleItems(2, "todo").slice(0, 4);
+
+      container.innerHTML = `
+        <div class="android-home">
+          <div class="android-clock">
+            <div class="time mono">09:41</div>
+            <div class="date">Miércoles, 25 de noviembre · Redmi</div>
+          </div>
+
+          <div class="widget-box">
+            <div class="widget-head">
+              <div>
+                <strong style="font-size:14px;">Mis Hábitos · Hoy</strong>
+                <div style="font-size:11.5px;color:var(--ph-muted);">Widget 4×2 · 1 toque</div>
+              </div>
+              <span class="mono" style="font-size:17px;font-weight:700;color:var(--ph-accent);">${prog.pct}%</span>
+            </div>
+            <div class="bar-track" style="margin-bottom:12px;">
+              <div class="bar-fill" style="width:${prog.pct}%"></div>
+            </div>
+            <div class="item-list">
+              ${topItems.map(item => {
+                const done = Boolean(item.doneByDay[2]);
+                return `
+                  <div style="display:flex;align-items:center;gap:9px;padding:6px 4px;border-bottom:1px solid var(--ph-border);">
+                    <button class="check-btn" style="width:21px;height:21px;min-width:21px;background:${done ? "var(--ph-accent)" : "transparent"};border-color:${done ? "var(--ph-accent)" : "#BFC4BC"};" type="button" data-widget-toggle="${item.id}">
+                      ${done ? "✓" : ""}
+                    </button>
+                    <span style="flex:1;font-size:12.5px;font-weight:600;${done ? "text-decoration:line-through;opacity:0.65;" : ""}">${escapeHtml(item.title)}</span>
+                    <span class="ctx-badge ${item.context}">${item.context === "personal" ? "P" : "L"}</span>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
+
+          <div class="app-dock">
+            <div class="dock-icon" data-open-app="hoy">
+              <div class="dock-sq app-main">MH</div>
+              <span>Mis Hábitos</span>
+            </div>
+            <div class="dock-icon"><div class="dock-sq">☎</div><span>Teléfono</span></div>
+            <div class="dock-icon"><div class="dock-sq">✉</div><span>Mensajes</span></div>
+            <div class="dock-icon"><div class="dock-sq">◎</div><span>Cámara</span></div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* Sheets & Actions */
+    function openSheet(html) {
+      document.getElementById("sheetContent").innerHTML = html;
+      document.getElementById("sheetBackdrop").classList.add("open");
+    }
+
+    function closeSheet() {
+      document.getElementById("sheetBackdrop").classList.remove("open");
+    }
+
+    function openNewRoutineSheet() {
+      openSheet(`
+        <h3>Nueva rutina (A)</h3>
+        <div class="field">
+          <label>Nombre</label>
+          <input id="nrTitle" type="text" placeholder="Ej. Leer 20 min" value="Leer 20 min" />
+        </div>
+        <div class="field">
+          <label>Contexto</label>
+          <select id="nrCtx">
+            <option value="personal">Personal</option>
+            <option value="laboral">Laboral</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Frecuencia</label>
+          <select id="nrFreq">
+            <option value="daily">Diaria</option>
+            <option value="alternate">Interdiaria (cada 2 días)</option>
+            <option value="mwf">Días específicos (Lun · Mié · Vie)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Bloque del día</label>
+          <select id="nrSlot">
+            <option value="manana">Mañana</option>
+            <option value="tarde">Tarde</option>
+            <option value="noche" selected>Noche</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;">
+          <button class="ph-btn" type="button" data-close-sheet="1">Cancelar</button>
+          <button class="ph-btn primary" type="button" id="saveRoutineBtn">Guardar rutina</button>
+        </div>
+      `);
+
+      document.getElementById("saveRoutineBtn").onclick = () => {
+        const title = document.getElementById("nrTitle").value.trim() || "Nueva rutina";
+        const context = document.getElementById("nrCtx").value;
+        const freqRule = document.getElementById("nrFreq").value;
+        const slot = document.getElementById("nrSlot").value;
+        const freqMap = { daily: "Diaria", alternate: "Interdiaria (cada 2 días)", mwf: "Lun · Mié · Vie" };
+        state.items.push({
+          id: "h-" + Date.now(),
+          type: "rutina",
+          title,
+          context,
+          slot,
+          freq: freqMap[freqRule],
+          freqRule,
+          reminders: ["21:00"],
+          doneByDay: {},
+          notesByDay: {},
+          monthHits: []
+        });
+        markStepTried("freq");
+        closeSheet();
+        saveState();
+        renderPhone();
+        showToast(`Rutina añadida: ${title}`);
+      };
+    }
+
+    function openNoteSheet(itemId) {
+      const item = state.items.find(i => i.id === itemId);
+      if (!item) return;
+      const existing = (item.notesByDay && item.notesByDay[state.selectedDay]) || "";
+      openSheet(`
+        <h3>Nota rápida (F)</h3>
+        <p style="font-size:12.5px;color:var(--ph-muted);margin:0 0 10px;">${escapeHtml(item.title)}</p>
+        <div class="field">
+          <label>Tu nota de hoy</label>
+          <input id="noteInput" type="text" placeholder="Ej. Caminé 4.2 km en 40 min" value="${escapeHtml(existing)}" />
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="ph-btn" type="button" data-close-sheet="1">Cancelar</button>
+          <button class="ph-btn primary" type="button" id="saveNoteBtn">Guardar nota</button>
+        </div>
+      `);
+
+      document.getElementById("saveNoteBtn").onclick = () => {
+        const val = document.getElementById("noteInput").value.trim();
+        item.notesByDay = item.notesByDay || {};
+        item.notesByDay[state.selectedDay] = val;
+        markStepTried("notes");
+        closeSheet();
+        saveState();
+        renderPhone();
+        showToast("Nota guardada en el registro de hoy");
+      };
+    }
+
+    function openRemindersSheet(itemId) {
+      const item = state.items.find(i => i.id === itemId);
+      if (!item) return;
+      const renderChips = () => {
+        const chips = (item.reminders || []).map((r, i) =>
+          `<span class="reminder-chip mono">⏰ ${r} <button type="button" data-del-rem="${i}" style="border:none;background:none;cursor:pointer;color:var(--ph-muted);font-weight:700;">×</button></span>`
+        ).join("");
+        openSheet(`
+          <h3>Recordatorios locales (B)</h3>
+          <p style="font-size:12.5px;color:var(--ph-muted);margin:0 0 10px;">${escapeHtml(item.title)}</p>
+          <div style="margin-bottom:10px;">${chips || "<span style='font-size:12px;color:var(--ph-muted);'>Sin recordatorios</span>"}</div>
+          <div class="field">
+            <label>Agregar otra hora</label>
+            <input id="newRemTime" type="time" value="20:00" />
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="ph-btn" type="button" data-close-sheet="1">Listo</button>
+            <button class="ph-btn primary" type="button" id="addRemBtn">+ Añadir hora</button>
+          </div>
+        `);
+        document.getElementById("addRemBtn").onclick = () => {
+          const t = document.getElementById("newRemTime").value;
+          if (t && !item.reminders.includes(t)) {
+            item.reminders.push(t);
+            item.reminders.sort();
+            markStepTried("reminders");
+            saveState();
+            renderPhone();
+            renderChips();
+          }
+        };
+        document.querySelectorAll("[data-del-rem]").forEach(b => {
+          b.onclick = () => {
+            item.reminders.splice(Number(b.dataset.delRem), 1);
+            saveState();
+            renderPhone();
+            renderChips();
+          };
+        });
+      };
+      renderChips();
+    }
+
+    function openNewAchievementSheet() {
+      openSheet(`
+        <h3>Registrar logro personal</h3>
+        <div class="field">
+          <label>¿Qué lograste hoy o esta semana?</label>
+          <input id="achTitle" type="text" placeholder="Ej. Completé 4 días de ejercicio sin excusas" value="Completé mi rutina de ejercicio y skincare" />
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="ph-btn" type="button" data-close-sheet="1">Cancelar</button>
+          <button class="ph-btn primary" type="button" id="saveAchBtn">Guardar logro</button>
+        </div>
+      `);
+      document.getElementById("saveAchBtn").onclick = () => {
+        const title = document.getElementById("achTitle").value.trim();
+        if (!title) return;
+        state.achievements.unshift({
+          id: "a-" + Date.now(),
+          kind: "manual",
+          date: "25 Nov",
+          title,
+          detail: "Logro personal registrado manualmente"
+        });
+        markStepTried("achievements");
+        closeSheet();
+        saveState();
+        renderPhone();
+        showToast("Logro añadido a tu línea de tiempo");
+      };
+    }
+
+    function simulatePush() {
+      const banner = document.getElementById("pushBanner");
+      document.getElementById("pushTitle").textContent = "Salir a caminar (30 min)";
+      document.getElementById("pushSub").textContent = "Rutina Personal · Recordatorio local";
+      document.getElementById("pushTime").textContent = "18:30";
+      banner.classList.add("open");
+    }
+
+    function incrementGoal(goalId, skipAutoStep = false) {
+      const g = state.goals.find(x => x.id === goalId);
+      if (!g || g.current >= g.total) return;
+      g.current += 1;
+      if (!skipAutoStep && g.steps && g.steps.length) {
+        const nextStep = g.steps.find(s => !s.done);
+        if (nextStep) nextStep.done = true;
+      }
+      const pct = Math.round((g.current / g.total) * 100);
+      let unlocked = null;
+      for (const m of [25, 50, 75, 100]) {
+        if (pct >= m && !g.milestonesReached.includes(m)) {
+          g.milestonesReached.push(m);
+          unlocked = m;
+          state.achievements.unshift({
+            id: "a-" + Date.now(),
+            kind: "auto",
+            date: "Hoy",
+            title: `${m}% completado — ${g.title}`,
+            detail: `Hito automático (${g.current}/${g.total} ${g.unitLabel})`
+          });
+        }
+      }
+      markStepTried("goals");
+      saveState();
+      renderPhone();
+      showToast(unlocked
+        ? `★ Hito desbloqueado: ${unlocked}% en ${g.title}`
+        : `Progreso actualizado: ${g.current}/${g.total} ${g.unitLabel} (${pct}%)`);
+    }
+
+    function goToStep(idx) {
+      state.step = Math.max(0, Math.min(STEPS.length - 1, idx));
+      state.tab = STEPS[state.step].tab;
+      if (state.step === 0 || state.step === 2 || state.step === 4) {
+        state.selectedDay = 2;
+      }
+      document.getElementById("pushBanner").classList.remove("open");
+      closeSheet();
+      saveState();
+      renderGuide();
+      renderPhone();
+    }
+
+    /* Event Wiring */
+    document.getElementById("stepperRail").addEventListener("click", e => {
+      const btn = e.target.closest("[data-step]");
+      if (btn) goToStep(Number(btn.dataset.step));
+    });
+
+    document.getElementById("prevStepBtn").addEventListener("click", () => goToStep(state.step - 1));
+    document.getElementById("nextStepBtn").addEventListener("click", () => {
+      goToStep(state.step === STEPS.length - 1 ? 0 : state.step + 1);
+    });
+
+    document.getElementById("tryCtaRow").addEventListener("click", e => {
+      const btn = e.target.closest("[data-cta]");
+      if (!btn) return;
+      const act = btn.dataset.cta;
+      if (act === "openNewRoutine") openNewRoutineSheet();
+      if (act === "simulatePush") simulatePush();
+      if (act === "openQuickNote") openNoteSheet("h-caminar");
+      if (act === "openNewAchievement") openNewAchievementSheet();
+    });
+
+    document.getElementById("toggleThemeBtn").addEventListener("click", () => {
+      state.dark = !state.dark;
+      saveState();
+      renderGuide();
+      renderPhone();
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      state = cloneDefault();
+      saveState();
+      document.getElementById("pushBanner").classList.remove("open");
+      closeSheet();
+      renderGuide();
+      renderPhone();
+      showToast("Demo reiniciada");
+    });
+
+    document.getElementById("pushDoneBtn").addEventListener("click", () => {
+      const walk = state.items.find(i => i.id === "h-caminar");
+      if (walk) walk.doneByDay[2] = true;
+      document.getElementById("pushBanner").classList.remove("open");
+      markStepTried("reminders");
+      saveState();
+      renderPhone();
+      showToast("✓ 'Salir a caminar' marcada desde la notificación");
+    });
+
+    document.getElementById("pushSnoozeBtn").addEventListener("click", () => {
+      document.getElementById("pushBanner").classList.remove("open");
+      markStepTried("reminders");
+      showToast("Recordatorio pospuesto 30 min (19:00)");
+    });
+
+    document.getElementById("phoneNav").addEventListener("click", e => {
+      const btn = e.target.closest("[data-tab]");
+      if (!btn) return;
+      state.tab = btn.dataset.tab;
+      saveState();
+      renderPhone();
+    });
+
+    document.getElementById("sheetBackdrop").addEventListener("click", e => {
+      if (e.target.id === "sheetBackdrop" || e.target.closest("[data-close-sheet]")) {
+        closeSheet();
+      }
+    });
+
+    document.getElementById("phoneBody").addEventListener("click", e => {
+      const ctxBtn = e.target.closest("[data-ctx]");
+      if (ctxBtn) {
+        state.context = ctxBtn.dataset.ctx;
+        markStepTried("hoy");
+        saveState();
+        renderPhone();
+        return;
+      }
+
+      const dayBtn = e.target.closest("[data-day]");
+      if (dayBtn) {
+        state.selectedDay = Number(dayBtn.dataset.day);
+        markStepTried("freq");
+        saveState();
+        renderPhone();
+        return;
+      }
+
+      const toggleBtn = e.target.closest("[data-toggle-item]");
+      if (toggleBtn) {
+        const item = state.items.find(i => i.id === toggleBtn.dataset.toggleItem);
+        if (item) {
+          item.doneByDay[state.selectedDay] = !item.doneByDay[state.selectedDay];
+          markStepTried("hoy");
+          saveState();
+          renderPhone();
+          if (item.doneByDay[state.selectedDay]) {
+            const p = calcDayProgress(state.selectedDay, state.context);
+            showToast(`✓ Completada · Día al ${p.pct}%`);
+          }
+        }
+        return;
+      }
+
+      const widgetToggle = e.target.closest("[data-widget-toggle]");
+      if (widgetToggle) {
+        const item = state.items.find(i => i.id === widgetToggle.dataset.widgetToggle);
+        if (item) {
+          item.doneByDay[2] = !item.doneByDay[2];
+          markStepTried("widget");
+          saveState();
+          renderPhone();
+          showToast("Widget sincronizado con la app");
+        }
+        return;
+      }
+
+      const openApp = e.target.closest("[data-open-app]");
+      if (openApp) {
+        state.tab = openApp.dataset.openApp;
+        markStepTried("widget");
+        saveState();
+        renderPhone();
+        return;
+      }
+
+      const noteBtn = e.target.closest("[data-open-note]");
+      if (noteBtn) {
+        openNoteSheet(noteBtn.dataset.openNote);
+        return;
+      }
+
+      const remBtn = e.target.closest("[data-open-reminders]");
+      if (remBtn) {
+        openRemindersSheet(remBtn.dataset.openReminders);
+        return;
+      }
+
+      const actionBtn = e.target.closest("[data-action]");
+      if (actionBtn) {
+        if (actionBtn.dataset.action === "openNewRoutine") openNewRoutineSheet();
+        if (actionBtn.dataset.action === "openNewAchievement") openNewAchievementSheet();
+        return;
+      }
+
+      const incBtn = e.target.closest("[data-inc-goal]");
+      if (incBtn) {
+        incrementGoal(incBtn.dataset.incGoal);
+        return;
+      }
+
+      const stepsToggle = e.target.closest("[data-toggle-steps]");
+      if (stepsToggle) {
+        state.expandedGoal = !state.expandedGoal;
+        saveState();
+        renderPhone();
+        return;
+      }
+
+      const stepRow = e.target.closest("[data-toggle-step]");
+      if (stepRow) {
+        const num = Number(stepRow.dataset.toggleStep);
+        const course = state.goals.find(g => g.id === "g-curso");
+        const st = course.steps.find(s => s.num === num);
+        if (st && !st.done) {
+          st.done = true;
+          incrementGoal("g-curso", true);
+        }
+      }
+    });
+
+    document.getElementById("phoneBody").addEventListener("change", e => {
+      if (e.target.id === "calHabitSelect") {
+        state.selectedCalHabit = e.target.value;
+        markStepTried("stats");
+        saveState();
+        renderPhone();
+      }
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+      if (e.key === "ArrowRight") goToStep(state.step + 1);
+      if (e.key === "ArrowLeft") goToStep(state.step - 1);
+    });
+
+    renderGuide();
+    renderPhone();
+  </script>
+</body>
+</html>
