@@ -88,7 +88,15 @@ Registro vivo de todo lo que vamos conversando, descubriendo y decidiendo durant
 
 ---
 
-### Próximos pasos tras revisar las pantallas en Stitch
-1. Que Jesús revise las 5 pantallas en Stitch y nos diga qué le encanta, qué ajustar o si quiere variantes de alguna pantalla.
-2. Confirmar la división **Beta 1 / Beta 2** y el esquema final de tablas (Drift/SQLite Supabase-ready).
-3. Inicializar el proyecto Flutter y construir Beta 1.
+### Ronda 8 — Auditoría autónoma, integración en `main` y Release `v0.1.0`
+- **Resultado:** Las 4 ramas paralelas (`feat/shell-design`, `feat/hoy-rutinas`, `feat/metas-progreso`, `feat/sistema-android`) fueron auditadas e integradas en orden sobre `main`.
+- **Correcciones aplicadas por el Juez Autónomo:** prevención de overflow en `PrimaryNeonButton`, resiliencia de `PhoneNotifier` en tests headless, soporte de edición de `anchorDate`, notas rápidas visibles en el historial mensual de `Progreso`, eliminación de `SoftGlassBackground` duplicado en `Ajustes`, botón `+` de `48dp` con drawables Soft Glass en el widget Android 4×2 y cableado completo en `app.dart` (`PhoneNotifier`, `syncTodayWidgetFromDb`, `/hoy?new=1`, `maybePromptForUpdate`).
+- **Compuertas superadas:** `flutter analyze` (0 issues), `flutter test` (29/29 verdes) y `flutter build apk --release --target-platform android-arm64` (`24.1 MB`).
+- **Acta completa:** Ver [07-veredicto-orquestador.md](./07-veredicto-orquestador.md) — Veredicto: **`APROBADO`**.
+
+---
+
+### Próximos pasos tras Release `v0.1.0`
+1. Instalar `power-habits-v0.1.0-arm64.apk` en el dispositivo Android y validar el uso real diario (notificaciones, widget 4×2 y auto-updater al publicar `v0.2.0`).
+2. Configurar los secretos de firma (`ANDROID_KEYSTORE_BASE64`, etc.) en GitHub Actions si se desea firma fija de release distinta a la firma debug reproducible.
+3. Fase 4 (futuro): añadir `SupabaseSyncService` sobre los repositorios y esquema UUID ya implementado sin reescribir la UI.

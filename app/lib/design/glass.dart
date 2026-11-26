@@ -317,7 +317,13 @@ class PrimaryNeonButton extends StatelessWidget {
               Icon(icon, size: 17),
               const SizedBox(width: 7),
             ],
-            Text(label),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
       ),

@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../design/glass.dart';
 import '../design/tokens.dart';
 
 /// Rutas declarativas de Power Habits.
@@ -77,7 +76,7 @@ GoRouter buildAppRouter({
       GoRoute(
         path: AppRoutes.settings,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => SoftGlassBackground(child: settingsPage),
+        builder: (context, state) => settingsPage,
       ),
     ],
   );

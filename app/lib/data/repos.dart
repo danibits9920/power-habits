@@ -88,6 +88,7 @@ class RoutineRepo {
     required String timeSlot,
     required String frequencyType,
     required String weekdaysMask,
+    String? anchorDate,
     required List<String> reminderTimes,
     required bool allowQuickNote,
   }) async {
@@ -98,6 +99,7 @@ class RoutineRepo {
         timeSlot: Value(timeSlot),
         frequencyType: Value(frequencyType),
         weekdaysMask: Value(weekdaysMask),
+        anchorDate: anchorDate != null ? Value(anchorDate) : const Value.absent(),
         reminderTimes: Value(reminderTimes.join(',')),
         allowQuickNote: Value(allowQuickNote),
         updatedAt: Value(nowUtcIso()),

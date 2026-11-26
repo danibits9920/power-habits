@@ -12,7 +12,9 @@ import '../../design/glass.dart';
 import '../../design/tokens.dart';
 
 class SettingsPage extends ConsumerWidget {
-  const SettingsPage({super.key});
+  const SettingsPage({super.key, this.onDataImported});
+
+  final VoidCallback? onDataImported;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,13 +22,12 @@ class SettingsPage extends ConsumerWidget {
     final tt = context.tt;
     final themeMode = ref.watch(themeModeProvider);
 
-    return SoftGlassBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x8),
-            children: [
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x8),
+          children: [
               Row(
                 children: [
                   if (Navigator.of(context).canPop()) ...[
@@ -187,6 +188,7 @@ class SettingsPage extends ConsumerWidget {
                               .read(routineRepoProvider)
                               .getActive();
                           await PhoneNotifier.instance.rescheduleAll(routines);
+                          onDataImported?.call();
                           if (!context.mounted) return;
                           _showNotice(
                             context,
@@ -273,8 +275,7 @@ class SettingsPage extends ConsumerWidget {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   void _showNotice(BuildContext context, String message) {

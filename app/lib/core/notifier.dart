@@ -152,6 +152,8 @@ class PhoneNotifier {
       // Sin implementación nativa (entorno de pruebas).
     } on PlatformException {
       // Ignorar fallo de inicialización fuera de Android.
+    } catch (_) {
+      // Protege contra LateInitializationError del platform interface en pruebas headless.
     }
   }
 
@@ -186,6 +188,8 @@ class PhoneNotifier {
     } on MissingPluginException {
       return false;
     } on PlatformException {
+      return false;
+    } catch (_) {
       return false;
     }
   }
@@ -228,7 +232,7 @@ class PhoneNotifier {
   /// Programa todos los recordatorios configurados para una rutina o tarea.
   Future<void> scheduleForRoutine(Routine routine) async {
     await init();
-    if (!_isSupportedPlatform) return;
+    if (!_initialized || !_isSupportedPlatform) return;
 
     await cancelForRoutine(routine.id);
     if (routine.deletedAt != null) return;
@@ -309,7 +313,7 @@ class PhoneNotifier {
   /// Cancela todos los recordatorios pendientes asociados a [routineId].
   Future<void> cancelForRoutine(String routineId) async {
     await init();
-    if (!_isSupportedPlatform) return;
+    if (!_initialized || !_isSupportedPlatform) return;
     try {
       final pending = await _plugin.pendingNotificationRequests();
       for (final req in pending) {
@@ -328,7 +332,7 @@ class PhoneNotifier {
   /// Limpia y reprograma todos los recordatorios de las rutinas activas.
   Future<int> rescheduleAll(List<Routine> routines) async {
     await init();
-    if (!_isSupportedPlatform) return 0;
+    if (!_initialized || !_isSupportedPlatform) return 0;
     try {
       await _plugin.cancelAll();
     } on MissingPluginException {
@@ -411,6 +415,8 @@ class PhoneNotifier {
       }
     } on MissingPluginException {
       // Entorno de pruebas.
+    } catch (_) {
+      // Protege contra LateInitializationError del platform interface en pruebas headless.
     }
   }
 

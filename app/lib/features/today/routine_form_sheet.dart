@@ -199,6 +199,7 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
           timeSlot: _timeSlot,
           frequencyType: effectiveFreq,
           weekdaysMask: mask,
+          anchorDate: dayStr(_anchorDate),
           reminderTimes: sortedReminders,
           allowQuickNote: _allowQuickNote,
         );
@@ -451,8 +452,8 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
               _DateInfoPill(
                 icon: LucideIcons.repeat,
                 label: 'Cada 2 días desde ${shortDateEs(_anchorDate)}',
-                editable: !_isEditing,
-                onTap: _isEditing ? null : _pickAnchorDate,
+                editable: true,
+                onTap: _pickAnchorDate,
               ),
             ],
             const SizedBox(height: Sp.x5),
@@ -462,8 +463,8 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
             _DateInfoPill(
               icon: LucideIcons.calendar,
               label: shortDateEs(_anchorDate),
-              editable: !_isEditing,
-              onTap: _isEditing ? null : _pickAnchorDate,
+              editable: true,
+              onTap: _pickAnchorDate,
             ),
             const SizedBox(height: Sp.x5),
           ],

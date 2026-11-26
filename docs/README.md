@@ -1,6 +1,6 @@
 # Power Habits — Documentación del Proyecto
 
-**Estado actual:** Fase de implementación multi-agente (`v0.1.0`)  
+**Estado actual:** Release `v0.1.0` **APROBADO** e integrado en `main`  
 **Tipo:** App móvil Flutter (Local-First → Supabase) de hábitos, tareas diarias, metas y logros  
 **Repositorio GitHub:** https://github.com/danibits9920/power-habits
 
@@ -12,6 +12,7 @@
 - [04-bitacora-y-qa.md](./04-bitacora-y-qa.md) — Bitácora viva con cada hallazgo, pregunta y respuesta de nuestras conversaciones.
 - [05-arquitectura-tecnica.md](./05-arquitectura-tecnica.md) — Stack Flutter + Drift (Supabase-ready), Kotlin MethodChannels, Auto-Updater y CI/CD.
 - [06-hoja-de-ruta-y-spec.md](./06-hoja-de-ruta-y-spec.md) — Spec completo, hoja de ruta, matriz de agentes paralelos y criterios de aprobación.
+- [07-veredicto-orquestador.md](./07-veredicto-orquestador.md) — Acta de auditoría multi-rama, hallazgos resueltos, evidencia de pruebas/APK y veredicto final (`APROBADO`).
 - [DESIGN.md](./DESIGN.md) — Sistema de diseño oficial **v2 (Soft Glass Minimal: rosado pastel + verde fosforescente + blanco/gris)** generado con `ui-ux-pro-max`.
 - [MASTER.md](../design-system/mis-habitos/MASTER.md) — Guía maestra de tokens, contraste WCAG y reglas Flutter (`ui-ux-pro-max`).
 - [prototipo-tutorial-interactivo.html](./prototipo-tutorial-interactivo.html) — Prototipo y tutorial interactivo local para probar en vivo cada flujo (A–G).

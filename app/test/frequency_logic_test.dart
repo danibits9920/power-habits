@@ -368,5 +368,34 @@ void main() {
         await db.close();
       },
     );
+
+    test('RoutineRepo.updateRoutine persists updated anchorDate', () async {
+      final db = AppDb.forTesting(NativeDatabase.memory());
+      final repo = RoutineRepo(db);
+      final id = await repo.create(
+        title: 'Enviar reporte',
+        itemType: 'task',
+        context: 'work',
+        frequencyType: 'once',
+        anchorDate: '2026-11-26',
+      );
+
+      await repo.updateRoutine(
+        id: id,
+        title: 'Enviar reporte final',
+        context: 'work',
+        timeSlot: 'morning',
+        frequencyType: 'once',
+        weekdaysMask: '1,2,3,4,5,6,7',
+        anchorDate: '2026-11-28',
+        reminderTimes: const ['09:00'],
+        allowQuickNote: true,
+      );
+
+      final items = await repo.getActive();
+      expect(items.single.title, 'Enviar reporte final');
+      expect(items.single.anchorDate, '2026-11-28');
+      await db.close();
+    });
   });
 }

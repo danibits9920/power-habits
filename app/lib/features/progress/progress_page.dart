@@ -238,8 +238,8 @@ class _AddAchievementPill extends StatelessWidget {
   }
 }
 
-/// Card 1 — Constancia mensual (C).
-class _MonthlyConsistencyCard extends StatelessWidget {
+/// Card 1 — Constancia mensual (C) con vista de notas rápidas por día (F).
+class _MonthlyConsistencyCard extends StatefulWidget {
   const _MonthlyConsistencyCard({
     required this.month,
     required this.today,
@@ -261,12 +261,53 @@ class _MonthlyConsistencyCard extends StatelessWidget {
   final ValueChanged<String?> onSelectRoutine;
 
   @override
+  State<_MonthlyConsistencyCard> createState() =>
+      _MonthlyConsistencyCardState();
+}
+
+class _MonthlyConsistencyCardState extends State<_MonthlyConsistencyCard> {
+  int? _selectedNoteDay;
+
+  @override
+  void didUpdateWidget(covariant _MonthlyConsistencyCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.month != widget.month ||
+        oldWidget.selectedRoutine?.id != widget.selectedRoutine?.id) {
+      _selectedNoteDay = null;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final pc = context.pc;
+    final selectedRoutine = widget.selectedRoutine;
+    final month = widget.month;
+    final today = widget.today;
+
     final statusMap = selectedRoutine == null
         ? const <int, RoutineMonthDayStatus>{}
-        : buildMonthCalendarStatus(selectedRoutine!, logs, month, today);
+        : buildMonthCalendarStatus(selectedRoutine, widget.logs, month, today);
     final completedCount = countCompletedDays(statusMap);
+
+    final notesByDay = <int, String>{};
+    if (selectedRoutine != null) {
+      for (final log in widget.logs) {
+        if (log.deletedAt != null || log.routineId != selectedRoutine.id) {
+          continue;
+        }
+        final trimmed = log.note?.trim() ?? '';
+        if (trimmed.isEmpty) continue;
+        final d = parseDayStr(log.logDate);
+        if (d.year == month.year && d.month == month.month) {
+          notesByDay[d.day] = trimmed;
+        }
+      }
+    }
+
+    final activeNoteDay =
+        _selectedNoteDay != null && notesByDay.containsKey(_selectedNoteDay)
+            ? _selectedNoteDay
+            : null;
 
     final totalDays = daysInMonth(month);
     final firstWeekdayOffset = DateTime(month.year, month.month, 1).weekday - 1;
@@ -293,7 +334,7 @@ class _MonthlyConsistencyCard extends StatelessWidget {
                     vertical: Sp.x1 + 2,
                   ),
                   decoration: BoxDecoration(
-                    color: selectedRoutine!.context == 'work'
+                    color: selectedRoutine.context == 'work'
                         ? pc.workSoft
                         : pc.pinkSoft,
                     borderRadius: BorderRadius.circular(Rad.pill),
@@ -305,7 +346,7 @@ class _MonthlyConsistencyCard extends StatelessWidget {
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       fontFeatures: kTabular,
-                      color: selectedRoutine!.context == 'work'
+                      color: selectedRoutine.context == 'work'
                           ? pc.onWorkSoft
                           : pc.onPinkSoft,
                     ),
@@ -321,7 +362,7 @@ class _MonthlyConsistencyCard extends StatelessWidget {
                 height: 48,
                 child: IconButton(
                   tooltip: 'Mes anterior',
-                  onPressed: onPreviousMonth,
+                  onPressed: widget.onPreviousMonth,
                   icon: Icon(LucideIcons.chevronLeft, size: 18, color: pc.ink),
                 ),
               ),
@@ -341,7 +382,7 @@ class _MonthlyConsistencyCard extends StatelessWidget {
                 height: 48,
                 child: IconButton(
                   tooltip: 'Mes siguiente',
-                  onPressed: onNextMonth,
+                  onPressed: widget.onNextMonth,
                   icon: Icon(LucideIcons.chevronRight, size: 18, color: pc.ink),
                 ),
               ),
@@ -368,7 +409,7 @@ class _MonthlyConsistencyCard extends StatelessWidget {
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value: selectedRoutine!.id,
+                  value: selectedRoutine.id,
                   isExpanded: true,
                   dropdownColor: pc.glassFillStrong,
                   borderRadius: BorderRadius.circular(Rad.md),
@@ -382,7 +423,7 @@ class _MonthlyConsistencyCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                   items: [
-                    for (final r in routines)
+                    for (final r in widget.routines)
                       DropdownMenuItem<String>(
                         value: r.id,
                         child: Text(
@@ -392,7 +433,7 @@ class _MonthlyConsistencyCard extends StatelessWidget {
                         ),
                       ),
                   ],
-                  onChanged: onSelectRoutine,
+                  onChanged: widget.onSelectRoutine,
                 ),
               ),
             ),
@@ -435,11 +476,20 @@ class _MonthlyConsistencyCard extends StatelessWidget {
                     date.day == today.day;
                 final status =
                     statusMap[dayNum] ?? RoutineMonthDayStatus.notScheduled;
+                final hasNote = notesByDay.containsKey(dayNum);
 
                 return _CalendarDayCell(
                   day: dayNum,
                   status: status,
                   isToday: isToday,
+                  hasNote: hasNote,
+                  isNoteSelected: activeNoteDay == dayNum,
+                  onTap: hasNote
+                      ? () => setState(() {
+                            _selectedNoteDay =
+                                _selectedNoteDay == dayNum ? null : dayNum;
+                          })
+                      : null,
                 );
               },
             ),
@@ -480,8 +530,48 @@ class _MonthlyConsistencyCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (notesByDay.isNotEmpty)
+                  _LegendDot(
+                    label: 'Nota',
+                    child: Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: pc.onPinkSoft,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
               ],
             ),
+            if (activeNoteDay != null) ...[
+              const SizedBox(height: Sp.x3),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Sp.x3,
+                  vertical: Sp.x2 + 2,
+                ),
+                decoration: BoxDecoration(
+                  color: pc.glassFillStrong,
+                  borderRadius: BorderRadius.circular(Rad.md),
+                  border: Border.all(color: pc.divider),
+                ),
+                child: Row(
+                  children: [
+                    Icon(LucideIcons.fileText, size: 15, color: pc.onPinkSoft),
+                    const SizedBox(width: Sp.x2),
+                    Expanded(
+                      child: Text(
+                        '${shortDateEs(DateTime(month.year, month.month, activeNoteDay))}: ${notesByDay[activeNoteDay]!}',
+                        style: context.tt.bodySmall?.copyWith(color: pc.ink),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ],
       ),
@@ -494,11 +584,17 @@ class _CalendarDayCell extends StatelessWidget {
     required this.day,
     required this.status,
     required this.isToday,
+    this.hasNote = false,
+    this.isNoteSelected = false,
+    this.onTap,
   });
 
   final int day;
   final RoutineMonthDayStatus status;
   final bool isToday;
+  final bool hasNote;
+  final bool isNoteSelected;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -537,25 +633,47 @@ class _CalendarDayCell extends StatelessWidget {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(Rad.sm),
-        border: isToday
-            ? Border.all(color: pc.ink, width: 2)
+        border: isToday || isNoteSelected
+            ? Border.all(
+                color: isNoteSelected ? pc.onPinkSoft : pc.ink,
+                width: 2,
+              )
             : (status == RoutineMonthDayStatus.future
                 ? Border.all(color: pc.divider, width: 1)
                 : null),
       ),
-      child: Text(
-        '$day',
-        style: TextStyle(
-          fontFamily: 'Outfit',
-          fontSize: 13,
-          fontWeight: isToday ? FontWeight.w700 : weight,
-          fontFeatures: kTabular,
-          color: textColor,
-        ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Text(
+            '$day',
+            style: TextStyle(
+              fontFamily: 'Outfit',
+              fontSize: 13,
+              fontWeight: isToday ? FontWeight.w700 : weight,
+              fontFeatures: kTabular,
+              color: textColor,
+            ),
+          ),
+          if (hasNote)
+            Positioned(
+              bottom: 3,
+              child: Container(
+                width: 4.5,
+                height: 4.5,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: status == RoutineMonthDayStatus.completed
+                      ? pc.onNeon
+                      : pc.onPinkSoft,
+                ),
+              ),
+            ),
+        ],
       ),
     );
 
-    if (useDashed && !isToday) {
+    if (useDashed && !isToday && !isNoteSelected) {
       cell = CustomPaint(
         painter: _DashedRoundedRectPainter(
           color: pc.divider,
@@ -565,6 +683,13 @@ class _CalendarDayCell extends StatelessWidget {
       );
     }
 
+    if (onTap != null) {
+      return GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: cell,
+      );
+    }
     return cell;
   }
 }
