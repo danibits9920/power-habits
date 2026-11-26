@@ -293,4 +293,47 @@ void main() {
       await db.close();
     },
   );
+
+  testWidgets(
+    'Horizontal swipe switches smoothly between Hoy, Metas, and Progreso',
+    (WidgetTester tester) async {
+      _setPhoneViewport(tester);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            themeModeProvider.overrideWith(
+              () => _TestThemeModeNotifier(ThemeMode.light),
+            ),
+          ],
+          child: const PowerHabitsApp(
+            enableStartupHooks: false,
+            todayPage: Center(child: Text('Tab Hoy Swipe')),
+            goalsPage: Center(child: Text('Tab Metas Swipe')),
+            progressPage: Center(child: Text('Tab Progreso Swipe')),
+            settingsPage: Center(child: Text('Tab Ajustes Swipe')),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tab Hoy Swipe'), findsOneWidget);
+
+      // Swipe left: Hoy -> Metas
+      await tester.drag(find.byType(PageView), const Offset(-320, 0));
+      await tester.pumpAndSettle();
+      expect(find.text('Tab Metas Swipe'), findsOneWidget);
+
+      // Swipe left: Metas -> Progreso
+      await tester.drag(find.byType(PageView), const Offset(-320, 0));
+      await tester.pumpAndSettle();
+      expect(find.text('Tab Progreso Swipe'), findsOneWidget);
+
+      // Swipe right: Progreso -> Metas
+      await tester.drag(find.byType(PageView), const Offset(320, 0));
+      await tester.pumpAndSettle();
+      expect(find.text('Tab Metas Swipe'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

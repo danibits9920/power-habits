@@ -14,12 +14,12 @@ import '../design/brand_logo.dart';
 import '../design/glass.dart';
 import '../design/tokens.dart';
 
-const kAppVersion = '0.3.0';
+const kAppVersion = '0.3.1';
 const kReleasesRepo = 'danibits9920/power-habits';
 const kReleaseNotes = <String>[
-  'Nuevo logo único de Power Habits (isotipo rayo + check minimalista) con ícono adaptativo Android y splash animado breve.',
-  'Frecuencia Interdiaria mejorada: elige Cada 2 o 3 días y cuántos días a la semana (2 a 5 días editables), más nuevo modo flexible "X veces/sem".',
-  'Fluidez mejorada: barra inferior y filtro deslizantes con física spring, gestos swipe en tarjetas de Hoy, vibración háptica y micro-celebración al llegar al 100 % o desbloquear hitos.',
+  'Desplazamiento horizontal fluido (swipe) entre Hoy, Metas y Progreso con el indicador neón siguiendo tu dedo 1:1.',
+  'Gran mejora de fluidez (60/120 fps): eliminados los múltiples BackdropFilter apilados en listas que saturaban la GPU y añadido RepaintBoundary en fondo y tarjetas.',
+  'Eliminado el conflicto de gestos horizontales en tarjetas de Hoy para deslizar libremente entre pestañas desde cualquier parte de la pantalla.',
 ];
 
 const _updaterChannel = MethodChannel('com.daltex.power_habits/updater');

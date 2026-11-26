@@ -15,63 +15,71 @@ class SoftGlassBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pc = context.pc;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [pc.bgTop, pc.bgBottom],
+    return RepaintBoundary(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [pc.bgTop, pc.bgBottom],
+          ),
         ),
-      ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Positioned(
-            top: -90,
-            right: -70,
-            child: IgnorePointer(
-              child: Container(
-                width: 280,
-                height: 280,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      pc.pinkGlow.withValues(alpha: 0.48),
-                      pc.pinkGlow.withValues(alpha: 0.0),
-                    ],
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              top: -90,
+              right: -70,
+              child: IgnorePointer(
+                child: RepaintBoundary(
+                  child: Container(
+                    width: 280,
+                    height: 280,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          pc.pinkGlow.withValues(alpha: 0.48),
+                          pc.pinkGlow.withValues(alpha: 0.0),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Positioned(
-            bottom: 40,
-            left: -90,
-            child: IgnorePointer(
-              child: Container(
-                width: 240,
-                height: 240,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      pc.pinkGlow.withValues(alpha: 0.28),
-                      pc.pinkGlow.withValues(alpha: 0.0),
-                    ],
+            Positioned(
+              bottom: 40,
+              left: -90,
+              child: IgnorePointer(
+                child: RepaintBoundary(
+                  child: Container(
+                    width: 240,
+                    height: 240,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          pc.pinkGlow.withValues(alpha: 0.28),
+                          pc.pinkGlow.withValues(alpha: 0.0),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          child,
-        ],
+            child,
+          ],
+        ),
       ),
     );
   }
 }
 
-/// Tarjeta translúcida de vidrio esmerilado diurno (blur 16px, borde especular 1px).
+/// Tarjeta translúcida estilo vidrio esmerilado diurno optimizada para 60/120 fps.
+/// Evita múltiples [BackdropFilter] apilados en listas (el fondo ya es un degradado suave);
+/// activar [useBlur] solo en superficies flotantes aisladas sobre contenido desplazable.
 class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
@@ -79,6 +87,7 @@ class GlassCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(Sp.x4),
     this.radius = Rad.lg,
     this.strong = false,
+    this.useBlur = false,
     this.onTap,
   });
 
@@ -86,33 +95,49 @@ class GlassCard extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final double radius;
   final bool strong;
+  final bool useBlur;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final pc = context.pc;
-    final content = ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            color: strong ? pc.glassFillStrong : pc.glassFill,
-            borderRadius: BorderRadius.circular(radius),
-            border: Border.all(color: pc.glassBorder, width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: pc.ink.withValues(alpha: 0.045),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: child,
+    final fillColor = strong ? pc.glassFillStrong : pc.glassFill;
+    final box = Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color.alphaBlend(
+              Colors.white.withValues(alpha: strong ? 0.16 : 0.22),
+              fillColor,
+            ),
+            fillColor,
+          ],
         ),
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: pc.glassBorder, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: pc.ink.withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
+      child: child,
     );
+
+    final Widget content = useBlur
+        ? ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: box,
+            ),
+          )
+        : box;
 
     if (onTap == null) return content;
     return Material(
@@ -425,7 +450,7 @@ Future<T?> showPowerSheet<T>({
         child: ClipRRect(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
               decoration: BoxDecoration(
                 color: pc.glassFillStrong,

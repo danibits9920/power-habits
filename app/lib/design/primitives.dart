@@ -264,7 +264,7 @@ void showPowerToast(
         content: ClipRRect(
           borderRadius: BorderRadius.circular(Rad.lg),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
             child: Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: Sp.x4,

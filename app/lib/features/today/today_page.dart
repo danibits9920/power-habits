@@ -1017,75 +1017,7 @@ class _RoutineItemCard extends StatelessWidget {
       ),
     );
 
-    return Dismissible(
-      key: ValueKey('swipe_${routine.id}'),
-      direction: onTapNote != null
-          ? DismissDirection.horizontal
-          : DismissDirection.startToEnd,
-      dismissThresholds: const {
-        DismissDirection.startToEnd: 0.28,
-        DismissDirection.endToStart: 0.28,
-      },
-      confirmDismiss: (direction) async {
-        if (direction == DismissDirection.startToEnd) {
-          onToggle();
-        } else if (direction == DismissDirection.endToStart &&
-            onTapNote != null) {
-          PowerHaptics.tap();
-          onTapNote!();
-        }
-        return false;
-      },
-      background: Container(
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.symmetric(horizontal: Sp.x5),
-        decoration: BoxDecoration(
-          color: pc.neon,
-          borderRadius: BorderRadius.circular(Rad.lg),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isCompleted ? LucideIcons.rotateCcw : LucideIcons.check,
-              size: 18,
-              color: pc.onNeon,
-            ),
-            const SizedBox(width: Sp.x2),
-            Text(
-              isCompleted ? 'Desmarcar' : 'Completar',
-              style: tt.labelMedium?.copyWith(
-                color: pc.onNeon,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-      secondaryBackground: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: Sp.x5),
-        decoration: BoxDecoration(
-          color: pc.pinkSoft,
-          borderRadius: BorderRadius.circular(Rad.lg),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Nota rápida',
-              style: tt.labelMedium?.copyWith(
-                color: pc.onPinkSoft,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(width: Sp.x2),
-            Icon(LucideIcons.fileText, size: 18, color: pc.onPinkSoft),
-          ],
-        ),
-      ),
-      child: card,
-    );
+    return RepaintBoundary(child: card);
   }
 }
 
