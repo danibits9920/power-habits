@@ -131,6 +131,7 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
     final now = dateOnly(DateTime.now());
     final picked = await showDatePicker(
       context: context,
+      useRootNavigator: true,
       initialDate: _anchorDate,
       firstDate: now.subtract(const Duration(days: 365)),
       lastDate: now.add(const Duration(days: 730)),
@@ -149,6 +150,7 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
     };
     final picked = await showTimePicker(
       context: context,
+      useRootNavigator: true,
       initialTime: TimeOfDay(hour: defaultHour, minute: 0),
     );
     if (picked == null || !mounted) return;
@@ -246,6 +248,7 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
 
     final confirmed = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (ctx) {
         final pc = ctx.pc;
         return AlertDialog(

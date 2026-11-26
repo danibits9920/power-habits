@@ -162,6 +162,7 @@ class ProgressPage extends ConsumerWidget {
     final pc = context.pc;
     final confirmed = await showDialog<bool>(
       context: context,
+      useRootNavigator: true,
       builder: (ctx) => AlertDialog(
         backgroundColor: pc.glassFillStrong,
         shape: RoundedRectangleBorder(

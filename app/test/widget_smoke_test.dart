@@ -252,4 +252,45 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets(
+    'Bottom sheet modals render above the floating bottom navigation bar',
+    (WidgetTester tester) async {
+      _setPhoneViewport(tester);
+
+      final db = AppDb.forTesting(NativeDatabase.memory());
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            dbProvider.overrideWithValue(db),
+            themeModeProvider.overrideWith(
+              () => _TestThemeModeNotifier(ThemeMode.light),
+            ),
+          ],
+          child: const PowerHabitsApp(enableStartupHooks: false),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Open the "Crear nuevo" modal sheet from the top '+' button on Hoy.
+      await tester.tap(find.byTooltip('Crear rutina o tarea'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Crear nuevo'), findsOneWidget);
+      expect(find.text('Nueva tarea'), findsOneWidget);
+
+      // Tapping "Nueva tarea" (positioned at the bottom of the sheet) must hit
+      // the sheet itself and NOT be obstructed by the floating bottom nav bar.
+      await tester.tap(find.text('Nueva tarea'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Nueva tarea'), findsAtLeastNWidgets(1));
+      expect(tester.takeException(), isNull);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+      await db.close();
+    },
+  );
 }

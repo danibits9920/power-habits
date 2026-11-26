@@ -380,6 +380,7 @@ Future<T?> showPowerSheet<T>({
   final pc = context.pc;
   return showModalBottomSheet<T>(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Colors.transparent,
@@ -399,43 +400,50 @@ Future<T?> showPowerSheet<T>({
                 ),
                 border: Border(top: BorderSide(color: pc.glassBorder)),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 10),
-                  Center(
-                    child: Container(
-                      width: 38,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: pc.divider,
-                        borderRadius: BorderRadius.circular(Rad.pill),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 10),
+                    Center(
+                      child: Container(
+                        width: 38,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: pc.divider,
+                          borderRadius: BorderRadius.circular(Rad.pill),
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      Sp.x5,
-                      Sp.x3,
-                      Sp.x3,
-                      Sp.x2,
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        Sp.x5,
+                        Sp.x3,
+                        Sp.x3,
+                        Sp.x2,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(title, style: ctx.tt.titleLarge),
+                          ),
+                          IconButton(
+                            tooltip: 'Cerrar',
+                            onPressed: () => Navigator.of(ctx).pop(),
+                            icon: Icon(
+                              LucideIcons.x,
+                              color: pc.inkMuted,
+                              size: 20,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(title, style: ctx.tt.titleLarge),
-                        ),
-                        IconButton(
-                          tooltip: 'Cerrar',
-                          onPressed: () => Navigator.of(ctx).pop(),
-                          icon: Icon(LucideIcons.x, color: pc.inkMuted, size: 20),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Flexible(child: builder(ctx)),
-                ],
+                    Flexible(child: builder(ctx)),
+                  ],
+                ),
               ),
             ),
           ),
