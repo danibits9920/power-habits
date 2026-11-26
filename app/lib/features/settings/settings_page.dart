@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/home_widget.dart';
 import '../../core/notifier.dart';
 import '../../core/providers.dart';
 import '../../core/updater.dart';
@@ -211,6 +212,54 @@ class SettingsPage extends ConsumerWidget {
               ),
               const SizedBox(height: Sp.x5),
 
+              // 3.5. Widgets de pantalla de inicio
+              _SectionTitle(
+                icon: LucideIcons.layoutGrid,
+                label: 'Widgets de inicio',
+              ),
+              const SizedBox(height: Sp.x2),
+              GlassCard(
+                padding: const EdgeInsets.symmetric(vertical: Sp.x1),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        Sp.x4,
+                        Sp.x3,
+                        Sp.x4,
+                        Sp.x2,
+                      ),
+                      child: Text(
+                        'Mantén pulsada tu pantalla de inicio de Android → Widgets → Power Habits para añadir:\n'
+                        '• Hoy (4×3): marca rutinas y filtra Personal/Laboral en 1 toque.\n'
+                        '• Metas (4×2): avanza tus cursos/metas con +1 directo.\n'
+                        '• Mini (2×2): porcentaje del día y siguiente pendiente.',
+                        style: tt.bodySmall,
+                      ),
+                    ),
+                    Divider(height: 1, color: pc.divider),
+                    _SettingsActionRow(
+                      icon: LucideIcons.refreshCw,
+                      title: 'Sincronizar widgets ahora',
+                      subtitle:
+                          'Actualiza Hoy, Metas y Mini en tu pantalla de inicio',
+                      onTap: () async {
+                        await syncTodayWidgetFromDb(
+                          ref.read(dbProvider),
+                          force: true,
+                        );
+                        if (!context.mounted) return;
+                        _showNotice(
+                          context,
+                          'Widgets sincronizados con tus datos actuales.',
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: Sp.x5),
+
               // 4. Actualizaciones
               _SectionTitle(
                 icon: LucideIcons.packageCheck,
@@ -308,11 +357,15 @@ class _SectionTitle extends StatelessWidget {
       children: [
         Icon(icon, size: 15, color: pc.inkMuted),
         const SizedBox(width: Sp.x2),
-        Text(
-          label.toUpperCase(),
-          style: context.tt.labelMedium?.copyWith(
-            letterSpacing: 0.7,
-            color: pc.inkMuted,
+        Expanded(
+          child: Text(
+            label.toUpperCase(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.tt.labelMedium?.copyWith(
+              letterSpacing: 0.7,
+              color: pc.inkMuted,
+            ),
           ),
         ),
       ],

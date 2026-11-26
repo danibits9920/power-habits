@@ -13,11 +13,12 @@ import 'package:path_provider/path_provider.dart';
 import '../design/glass.dart';
 import '../design/tokens.dart';
 
-const kAppVersion = '0.1.1';
+const kAppVersion = '0.2.0';
 const kReleasesRepo = 'danibits9920/power-habits';
 const kReleaseNotes = <String>[
-  'Corregido: todos los modales, hojas inferiores y diálogos ahora se abren por encima de la barra flotante inferior.',
-  'Mejorado el espacio seguro inferior en hojas modales para evitar choques con la barra de gestos de Android.',
+  '3 widgets interactivos para gestionar fuera de la app: Hoy (4×3), Metas (+1 directo) y Mini (2×2).',
+  'Marca rutinas, cambia el filtro Todo/Personal/Laboral y avanza tus metas con +1 sin abrir la app.',
+  'Sincronización bidireccional automática con SQLite y desbloqueo de hitos/logros al volver a abrir.',
 ];
 
 const _updaterChannel = MethodChannel('com.daltex.power_habits/updater');

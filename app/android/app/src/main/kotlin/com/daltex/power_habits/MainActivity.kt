@@ -1,15 +1,15 @@
 package com.daltex.power_habits
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import org.json.JSONArray
 import java.io.File
 
 class MainActivity : FlutterActivity() {
@@ -20,35 +20,29 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        pendingRoute = intent?.getStringExtra(PowerHabitsWidgetProvider.EXTRA_ROUTE)
-        intent?.removeExtra(PowerHabitsWidgetProvider.EXTRA_ROUTE)
+        pendingRoute = intent?.getStringExtra(WidgetStore.EXTRA_ROUTE)
+        intent?.removeExtra(WidgetStore.EXTRA_ROUTE)
 
         val wch = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, widgetChannelName)
         widgetChannel = wch
+        activeWidgetChannel = wch
+
         wch.setMethodCallHandler { call, result ->
             when (call.method) {
-                "update" -> {
-                    val pct = (call.argument<Int>("pct") ?: 0).coerceIn(0, 100)
-                    val doneCount = call.argument<Int>("doneCount") ?: 0
-                    val totalCount = call.argument<Int>("totalCount") ?: 0
-                    val titles = call.argument<List<*>>("pendingTitles")
-                        ?.mapNotNull { it?.toString()?.trim() }
-                        ?.filter { it.isNotEmpty() }
-                        ?.take(3)
-                        ?: emptyList()
-                    val titlesJson = JSONArray().apply {
-                        titles.forEach { put(it) }
-                    }.toString()
-
-                    getSharedPreferences(PowerHabitsWidgetProvider.PREFS, Context.MODE_PRIVATE)
-                        .edit()
-                        .putInt("pct", pct)
-                        .putInt("doneCount", doneCount)
-                        .putInt("totalCount", totalCount)
-                        .putString("pendingTitles", titlesJson)
-                        .apply()
-                    PowerHabitsWidgetProvider.updateAll(this)
+                "syncAll" -> {
+                    val dateKey = call.argument<String>("dateKey") ?: WidgetStore.todayDateStr()
+                    val todayItemsJson = call.argument<String>("todayItemsJson") ?: "[]"
+                    val goalsItemsJson = call.argument<String>("goalsItemsJson") ?: "[]"
+                    WidgetStore.saveSnapshot(
+                        context = this,
+                        dateKey = dateKey,
+                        todayItemsJson = todayItemsJson,
+                        goalsItemsJson = goalsItemsJson
+                    )
                     result.success(true)
+                }
+                "consumePendingActions" -> {
+                    result.success(WidgetStore.consumePendingActionsJson(this))
                 }
                 "initialRoute" -> {
                     val route = pendingRoute
@@ -107,13 +101,37 @@ class MainActivity : FlutterActivity() {
             }
     }
 
+    override fun onDestroy() {
+        if (activeWidgetChannel === widgetChannel) {
+            activeWidgetChannel = null
+        }
+        super.onDestroy()
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        val route = intent.getStringExtra(PowerHabitsWidgetProvider.EXTRA_ROUTE)
+        val route = intent.getStringExtra(WidgetStore.EXTRA_ROUTE)
         if (!route.isNullOrBlank()) {
-            intent.removeExtra(PowerHabitsWidgetProvider.EXTRA_ROUTE)
+            intent.removeExtra(WidgetStore.EXTRA_ROUTE)
             widgetChannel?.invokeMethod("navigate", route)
+        }
+    }
+
+    companion object {
+        @Volatile
+        private var activeWidgetChannel: MethodChannel? = null
+        private val mainHandler = Handler(Looper.getMainLooper())
+
+        fun notifyPendingActions() {
+            val ch = activeWidgetChannel ?: return
+            mainHandler.post {
+                try {
+                    ch.invokeMethod("syncPending", null)
+                } catch (_: Exception) {
+                    // Ignorar si el motor Flutter se está cerrando.
+                }
+            }
         }
     }
 }

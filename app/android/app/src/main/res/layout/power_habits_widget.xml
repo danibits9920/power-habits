@@ -7,37 +7,52 @@
     android:orientation="vertical"
     android:padding="14dp">
 
+    <!-- Header: Titulo + Filtro interactivo + % + Boton + -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_header"
+        <LinearLayout
+            android:id="@+id/area_open_today"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="Power Habits · Hoy"
-            android:textColor="#141517"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Hoy"
+                android:textColor="#141517"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 de 0 completadas"
+                android:textColor="#5F6570"
+                android:textSize="11sp" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/tv_count"
+            android:id="@+id/btn_filter"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="6dp"
             android:background="@drawable/widget_pill_pink"
-            android:paddingLeft="9dp"
-            android:paddingTop="3dp"
-            android:paddingRight="9dp"
-            android:paddingBottom="3dp"
-            android:text="0/0"
+            android:gravity="center"
+            android:paddingLeft="11dp"
+            android:paddingRight="11dp"
+            android:text="Todo"
             android:textColor="#5C2840"
-            android:textSize="11sp"
+            android:textSize="11.5sp"
             android:textStyle="bold" />
 
         <TextView
@@ -52,14 +67,14 @@
 
         <TextView
             android:id="@+id/btn_add"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             android:background="@drawable/widget_btn_add"
             android:contentDescription="Nueva rutina"
             android:gravity="center"
             android:text="+"
             android:textColor="#141517"
-            android:textSize="22sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -67,42 +82,284 @@
         android:id="@+id/pb_progress"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="8dp"
+        android:layout_height="7dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="9dp"
         android:max="100"
         android:progress="0"
         android:progressDrawable="@drawable/widget_progress_bar" />
 
+    <!-- Empty state -->
     <TextView
-        android:id="@+id/tv_item_1"
+        android:id="@+id/tv_empty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:text="Abre la app para ver tus rutinas"
-        android:textColor="#141517"
-        android:textSize="12.5sp" />
-
-    <TextView
-        android:id="@+id/tv_item_2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:ellipsize="end"
-        android:maxLines="1"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:text="Abre Power Habits para cargar tus rutinas de hoy"
         android:textColor="#5F6570"
         android:textSize="12.5sp"
         android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/tv_item_3"
+    <!-- Row 1 -->
+    <LinearLayout
+        android:id="@+id/row_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textColor="#5F6570"
-        android:textSize="12.5sp"
-        android:visibility="gone" />
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/widget_row_bg"
+        android:gravity="center_vertical"
+        android:minHeight="38dp"
+        android:orientation="horizontal"
+        android:paddingLeft="10dp"
+        android:paddingTop="6dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="6dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/chk_1"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginEnd="9dp"
+            android:background="@drawable/widget_check_off"
+            android:gravity="center"
+            android:text=""
+            android:textColor="#141517"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_item_1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#141517"
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tag_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/widget_pill_pink"
+            android:paddingLeft="6dp"
+            android:paddingTop="2dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="2dp"
+            android:text="P"
+            android:textColor="#5C2840"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Row 2 -->
+    <LinearLayout
+        android:id="@+id/row_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/widget_row_bg"
+        android:gravity="center_vertical"
+        android:minHeight="38dp"
+        android:orientation="horizontal"
+        android:paddingLeft="10dp"
+        android:paddingTop="6dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="6dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/chk_2"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginEnd="9dp"
+            android:background="@drawable/widget_check_off"
+            android:gravity="center"
+            android:text=""
+            android:textColor="#141517"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_item_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#141517"
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tag_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/widget_pill_pink"
+            android:paddingLeft="6dp"
+            android:paddingTop="2dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="2dp"
+            android:text="P"
+            android:textColor="#5C2840"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Row 3 -->
+    <LinearLayout
+        android:id="@+id/row_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/widget_row_bg"
+        android:gravity="center_vertical"
+        android:minHeight="38dp"
+        android:orientation="horizontal"
+        android:paddingLeft="10dp"
+        android:paddingTop="6dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="6dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/chk_3"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginEnd="9dp"
+            android:background="@drawable/widget_check_off"
+            android:gravity="center"
+            android:text=""
+            android:textColor="#141517"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_item_3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#141517"
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tag_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/widget_pill_pink"
+            android:paddingLeft="6dp"
+            android:paddingTop="2dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="2dp"
+            android:text="P"
+            android:textColor="#5C2840"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Row 4 -->
+    <LinearLayout
+        android:id="@+id/row_4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/widget_row_bg"
+        android:gravity="center_vertical"
+        android:minHeight="38dp"
+        android:orientation="horizontal"
+        android:paddingLeft="10dp"
+        android:paddingTop="6dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="6dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/chk_4"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginEnd="9dp"
+            android:background="@drawable/widget_check_off"
+            android:gravity="center"
+            android:text=""
+            android:textColor="#141517"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_item_4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#141517"
+            android:textSize="12.5sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tag_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:background="@drawable/widget_pill_pink"
+            android:paddingLeft="6dp"
+            android:paddingTop="2dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="2dp"
+            android:text="P"
+            android:textColor="#5C2840"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Paginacion cuando hay mas de 4 rutinas -->
+    <LinearLayout
+        android:id="@+id/pager_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_page_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="1 / 2"
+            android:textColor="#5F6570"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/btn_prev_page"
+            android:layout_width="32dp"
+            android:layout_height="26dp"
+            android:layout_marginEnd="6dp"
+            android:background="@drawable/widget_pill_gray"
+            android:gravity="center"
+            android:text="‹"
+            android:textColor="#141517"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/btn_next_page"
+            android:layout_width="32dp"
+            android:layout_height="26dp"
+            android:background="@drawable/widget_pill_gray"
+            android:gravity="center"
+            android:text="›"
+            android:textColor="#141517"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 </LinearLayout>

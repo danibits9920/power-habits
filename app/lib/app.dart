@@ -14,13 +14,14 @@ import 'core/updater.dart';
 import 'data/db.dart';
 import 'design/glass.dart';
 import 'design/tokens.dart';
+import 'features/goals/goal_form_sheet.dart';
 import 'features/goals/goals_page.dart';
 import 'features/progress/progress_page.dart';
 import 'features/settings/settings_page.dart';
 import 'features/today/routine_form_sheet.dart';
 import 'features/today/today_page.dart';
 
-/// Aplicación principal de Power Habits con integración completa de pantallas y servicios de sistema.
+/// Aplicación principal de Power Habits con integración completa de pantallas, widgets y servicios.
 class PowerHabitsApp extends ConsumerStatefulWidget {
   const PowerHabitsApp({
     super.key,
@@ -47,6 +48,7 @@ class _PowerHabitsAppState extends ConsumerState<PowerHabitsApp> {
   final GlobalKey<NavigatorState> _rootNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'powerHabitsRoot');
   late GoRouter _router;
+  AppLifecycleListener? _lifecycle;
   BuildContext? _appInnerContext;
   bool _openingQuickAdd = false;
 
@@ -54,6 +56,13 @@ class _PowerHabitsAppState extends ConsumerState<PowerHabitsApp> {
   void initState() {
     super.initState();
     _router = _createRouter();
+    if (widget.enableStartupHooks) {
+      _lifecycle = AppLifecycleListener(
+        onResume: () {
+          if (mounted) unawaited(_syncWidget(force: true));
+        },
+      );
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final readyContext =
@@ -79,6 +88,7 @@ class _PowerHabitsAppState extends ConsumerState<PowerHabitsApp> {
 
   @override
   void dispose() {
+    _lifecycle?.dispose();
     _router.dispose();
     super.dispose();
   }
@@ -89,9 +99,12 @@ class _PowerHabitsAppState extends ConsumerState<PowerHabitsApp> {
     );
     if (!mounted) return;
 
-    unawaited(_syncWidget());
+    await _syncWidget(force: true);
 
-    setupHomeWidgetNavigation(_handleWidgetRoute);
+    setupHomeWidgetNavigation(
+      _handleWidgetRoute,
+      onPendingActions: () => unawaited(_syncWidget(force: true)),
+    );
 
     if (readyContext.mounted) {
       unawaited(maybePromptForUpdate(readyContext, ref));
@@ -124,13 +137,13 @@ class _PowerHabitsAppState extends ConsumerState<PowerHabitsApp> {
         }
       }
     }
-    await _syncWidget();
+    await _syncWidget(force: true);
   }
 
-  Future<void> _syncWidget() async {
+  Future<void> _syncWidget({bool force = false}) async {
     if (!mounted) return;
     try {
-      await syncTodayWidgetFromDb(ref.read(dbProvider));
+      await syncTodayWidgetFromDb(ref.read(dbProvider), force: force);
     } catch (_) {
       // Silencioso si la DB fue cerrada en teardown de pruebas.
     }
@@ -138,12 +151,12 @@ class _PowerHabitsAppState extends ConsumerState<PowerHabitsApp> {
 
   Future<void> _onRoutineSaved(Routine routine) async {
     await PhoneNotifier.instance.scheduleForRoutine(routine);
-    await _syncWidget();
+    await _syncWidget(force: true);
   }
 
   Future<void> _onRoutineDeleted(String routineId) async {
     await PhoneNotifier.instance.cancelForRoutine(routineId);
-    await _syncWidget();
+    await _syncWidget(force: true);
   }
 
   void _openSettings() {
@@ -168,18 +181,21 @@ class _PowerHabitsAppState extends ConsumerState<PowerHabitsApp> {
       _router.go(AppRoutes.today);
     }
 
-    if (path == AppRoutes.today && uri?.queryParameters['new'] == '1') {
+    if (uri?.queryParameters['new'] == '1') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || _openingQuickAdd) return;
         final navCtx = _rootNavigatorKey.currentContext;
         if (navCtx == null || !navCtx.mounted) return;
         _openingQuickAdd = true;
-        showRoutineFormSheet(
-          navCtx,
-          initialDate: dateOnly(DateTime.now()),
-          onSaved: _onRoutineSaved,
-          onDeleted: _onRoutineDeleted,
-        ).whenComplete(() {
+        final Future<Object?> sheetFuture = path == AppRoutes.goals
+            ? showGoalFormSheet(navCtx)
+            : showRoutineFormSheet(
+                navCtx,
+                initialDate: dateOnly(DateTime.now()),
+                onSaved: _onRoutineSaved,
+                onDeleted: _onRoutineDeleted,
+              );
+        sheetFuture.whenComplete(() {
           _openingQuickAdd = false;
         });
       });
@@ -193,7 +209,7 @@ class _PowerHabitsAppState extends ConsumerState<PowerHabitsApp> {
               onOpenSettings: _openSettings,
               onRoutineSaved: _onRoutineSaved,
               onRoutineDeleted: _onRoutineDeleted,
-              onDataChanged: () => unawaited(_syncWidget()),
+              onDataChanged: () => unawaited(_syncWidget(force: true)),
             ),
         goalsPage: widget.goalsPage ??
             GoalsPage(
@@ -205,13 +221,20 @@ class _PowerHabitsAppState extends ConsumerState<PowerHabitsApp> {
             ),
         settingsPage: widget.settingsPage ??
             SettingsPage(
-              onDataImported: () => unawaited(_syncWidget()),
+              onDataImported: () => unawaited(_syncWidget(force: true)),
             ),
       );
 
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
+
+    if (widget.enableStartupHooks) {
+      // Mantiene sincronizado el Widget de Metas ante cualquier +1, paso o creación.
+      ref.listen(goalsStreamProvider, (_, next) {
+        if (next.hasValue) unawaited(_syncWidget());
+      });
+    }
 
     return MaterialApp.router(
       title: 'Power Habits',

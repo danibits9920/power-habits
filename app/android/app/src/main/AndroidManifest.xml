@@ -27,16 +27,49 @@
             </intent-filter>
         </activity>
 
+        <!-- Widget 1: Hoy interactivo (4x3) -->
         <receiver
             android:name=".PowerHabitsWidgetProvider"
             android:exported="true"
-            android:label="Power Habits">
+            android:label="Power Habits · Hoy">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.daltex.power_habits.WIDGET_TOGGLE_ROUTINE" />
+                <action android:name="com.daltex.power_habits.WIDGET_CYCLE_FILTER" />
+                <action android:name="com.daltex.power_habits.WIDGET_HOY_PAGE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/power_habits_widget_info" />
+        </receiver>
+
+        <!-- Widget 2: Metas +1 interactivo (4x2) -->
+        <receiver
+            android:name=".PowerHabitsGoalsWidgetProvider"
+            android:exported="true"
+            android:label="Power Habits · Metas">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.daltex.power_habits.WIDGET_INC_GOAL" />
+                <action android:name="com.daltex.power_habits.WIDGET_GOALS_PAGE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/power_habits_goals_widget_info" />
+        </receiver>
+
+        <!-- Widget 3: Mini Progreso compacto (2x2) -->
+        <receiver
+            android:name=".PowerHabitsMiniWidgetProvider"
+            android:exported="true"
+            android:label="Power Habits · Mini">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.daltex.power_habits.WIDGET_MINI_CHECK_NEXT" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/power_habits_mini_widget_info" />
         </receiver>
 
         <receiver

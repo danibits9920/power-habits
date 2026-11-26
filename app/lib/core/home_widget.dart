@@ -1,8 +1,11 @@
-// Puente con el widget nativo 4x2 de la pantalla de inicio de Android (Soft Glass Minimal).
+// Puente bidireccional con los 3 widgets nativos de Android (Hoy 4x3, Metas 4x2 y Mini 2x2).
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:flutter/services.dart';
 
 import '../data/db.dart';
+import '../data/repos.dart';
 import 'dates.dart';
 import 'frequency.dart';
 
@@ -15,14 +18,98 @@ const _slotRank = <String, int>{
   'anytime': 3,
 };
 
-String? _lastSignature;
+String? _lastSnapshotSignature;
+bool _syncInFlight = false;
 
-/// Calcula el progreso real de hoy desde SQLite y sincroniza el widget 4x2 de Android.
-Future<void> syncTodayWidgetFromDb(AppDb db, {DateTime? now}) async {
+class WidgetSnapshotPayload {
+  const WidgetSnapshotPayload({
+    required this.dateKey,
+    required this.todayItemsJson,
+    required this.goalsItemsJson,
+  });
+
+  final String dateKey;
+  final String todayItemsJson;
+  final String goalsItemsJson;
+
+  String get signature => '$dateKey|$todayItemsJson|$goalsItemsJson';
+}
+
+/// Aplica en Drift SQLite la cola JSON de acciones ejecutadas desde los widgets fuera de la app.
+/// Devuelve la cantidad de acciones aplicadas.
+Future<int> applyPendingWidgetActionsJson(AppDb db, String rawJson) async {
+  final trimmed = rawJson.trim();
+  if (trimmed.isEmpty || trimmed == '[]') return 0;
+
+  final dynamic decoded;
+  try {
+    decoded = jsonDecode(trimmed);
+  } catch (_) {
+    return 0;
+  }
+  if (decoded is! List || decoded.isEmpty) return 0;
+
+  final routineRepo = RoutineRepo(db);
+  final achievementRepo = AchievementRepo(db);
+  final goalRepo = GoalRepo(db, achievementRepo);
+  var applied = 0;
+
+  for (final entry in decoded) {
+    if (entry is! Map) continue;
+    final type = (entry['type'] as String? ?? '').trim();
+    final id = (entry['id'] as String? ?? '').trim();
+    if (id.isEmpty) continue;
+
+    if (type == 'toggle_routine') {
+      final dateKey = (entry['dateKey'] as String? ?? '').trim();
+      final effectiveDate =
+          dateKey.isEmpty ? dayStr(DateTime.now()) : dateKey;
+      final completedVal = entry['completed'] is bool
+          ? entry['completed'] as bool
+          : null;
+      final nowCompleted = await routineRepo.toggleCompletion(
+        routineId: id,
+        dateKey: effectiveDate,
+        forceValue: completedVal,
+      );
+      applied++;
+
+      if (nowCompleted) {
+        final totalDone = await routineRepo.countCompletedLogs(id);
+        if (totalDone >= 7) {
+          final active = await routineRepo.getActive();
+          for (final r in active) {
+            if (r.id == id) {
+              await achievementRepo.unlockAuto(
+                sourceKey: 'routine:${r.id}:7days',
+                title: '7 días constantes — ${r.title}',
+                detail: 'Completaste esta rutina 7 veces',
+                context: r.context,
+              );
+              break;
+            }
+          }
+        }
+      }
+    } else if (type == 'inc_goal') {
+      final delta = (entry['delta'] as num?)?.toInt() ?? 1;
+      await goalRepo.adjustProgress(id, delta);
+      applied++;
+    }
+  }
+
+  return applied;
+}
+
+/// Construye el snapshot JSON de rutinas de hoy y metas activas desde SQLite.
+Future<WidgetSnapshotPayload> buildWidgetSnapshotPayload(
+  AppDb db, {
+  DateTime? now,
+}) async {
   final today = dateOnly(now ?? DateTime.now());
   final todayKey = dayStr(today);
 
-  final active = await (db.select(db.routines)
+  final activeRoutines = await (db.select(db.routines)
         ..where((t) => t.deletedAt.isNull())
         ..orderBy([
           (t) => OrderingTerm.asc(t.sortOrder),
@@ -30,7 +117,7 @@ Future<void> syncTodayWidgetFromDb(AppDb db, {DateTime? now}) async {
         ]))
       .get();
 
-  final applicable = active
+  final applicable = activeRoutines
       .where((r) => routineAppliesOnDate(r, today))
       .toList()
     ..sort((a, b) {
@@ -50,61 +137,102 @@ Future<void> syncTodayWidgetFromDb(AppDb db, {DateTime? now}) async {
       .get();
   final doneIds = {for (final l in logs) l.routineId};
 
-  final totalCount = applicable.length;
-  final doneCount = applicable.where((r) => doneIds.contains(r.id)).length;
-  final pct = totalCount == 0 ? 0 : ((doneCount / totalCount) * 100).round();
-  final pendingTitles = applicable
-      .where((r) => !doneIds.contains(r.id))
-      .map((r) => r.title)
-      .take(3)
-      .toList();
+  // Pendientes primero, completadas al final para acceso inmediato en widget.
+  final orderedToday = [
+    ...applicable.where((r) => !doneIds.contains(r.id)),
+    ...applicable.where((r) => doneIds.contains(r.id)),
+  ];
 
-  await syncPowerWidget(
-    pct: pct,
-    doneCount: doneCount,
-    totalCount: totalCount,
-    pendingTitles: pendingTitles,
+  final todayJson = jsonEncode([
+    for (final r in orderedToday)
+      {
+        'id': r.id,
+        'title': r.title,
+        'context': r.context,
+        'completed': doneIds.contains(r.id),
+      },
+  ]);
+
+  final activeGoals = await (db.select(db.goals)
+        ..where((t) => t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+      .get();
+
+  final goalsJson = jsonEncode([
+    for (final g in activeGoals)
+      {
+        'id': g.id,
+        'title': g.title,
+        'context': g.context,
+        'unitLabel': g.unitLabel,
+        'current': g.currentValue,
+        'target': g.targetValue,
+      },
+  ]);
+
+  return WidgetSnapshotPayload(
+    dateKey: todayKey,
+    todayItemsJson: todayJson,
+    goalsItemsJson: goalsJson,
   );
 }
 
-/// Sincroniza el progreso del día y hasta 3 rutinas pendientes hacia el widget Android.
-/// Silencioso fuera de Android o en pruebas unitarias.
-Future<void> syncPowerWidget({
-  required int pct,
-  required int doneCount,
-  required int totalCount,
-  required List<String> pendingTitles,
-}) async {
-  final safePct = pct.clamp(0, 100);
-  final topPending = pendingTitles
-      .map((t) => t.trim())
-      .where((t) => t.isNotEmpty)
-      .take(3)
-      .toList();
-  final sig = '$safePct|$doneCount|$totalCount|${topPending.join('||')}';
-  if (sig == _lastSignature) return;
-  _lastSignature = sig;
-
+/// Consume y aplica en SQLite cualquier acción ejecutada en los widgets mientras la app estaba cerrada.
+Future<int> flushPendingWidgetActions(AppDb db) async {
   try {
-    await _widgetChannel.invokeMethod<void>('update', {
-      'pct': safePct,
-      'doneCount': doneCount,
-      'totalCount': totalCount,
-      'pendingTitles': topPending,
-    });
+    final raw =
+        await _widgetChannel.invokeMethod<String>('consumePendingActions') ??
+            '[]';
+    return await applyPendingWidgetActionsJson(db, raw);
   } on MissingPluginException {
-    // Pruebas unitarias o plataforma sin widget nativo.
+    return 0;
   } on PlatformException {
-    // Ignorar fallo pasajero del launcher.
+    return 0;
   }
 }
 
-/// Escucha toques desde el widget de Android para abrir rutas directas (/hoy o /hoy?new=1).
-void setupHomeWidgetNavigation(void Function(String route) onNavigate) {
+/// Sincroniza bidireccionalmente los 3 widgets nativos de Android:
+/// 1) Primero aplica acciones pendientes hechas desde el escritorio.
+/// 2) Luego empuja el estado autorizado de rutinas de hoy y metas activas.
+Future<void> syncTodayWidgetFromDb(
+  AppDb db, {
+  DateTime? now,
+  bool force = false,
+}) async {
+  if (_syncInFlight) return;
+  _syncInFlight = true;
+  try {
+    final applied = await flushPendingWidgetActions(db);
+    final payload = await buildWidgetSnapshotPayload(db, now: now);
+    if (!force && applied == 0 && payload.signature == _lastSnapshotSignature) {
+      return;
+    }
+    _lastSnapshotSignature = payload.signature;
+    await _widgetChannel.invokeMethod<void>('syncAll', {
+      'dateKey': payload.dateKey,
+      'todayItemsJson': payload.todayItemsJson,
+      'goalsItemsJson': payload.goalsItemsJson,
+    });
+  } on MissingPluginException {
+    // Pruebas unitarias o plataforma sin widgets nativos.
+  } on PlatformException {
+    // Ignorar fallo pasajero del launcher.
+  } finally {
+    _syncInFlight = false;
+  }
+}
+
+/// Escucha toques de navegación y avisos de acciones pendientes desde los widgets Android.
+void setupHomeWidgetNavigation(
+  void Function(String route) onNavigate, {
+  VoidCallback? onPendingActions,
+}) {
   _widgetChannel.setMethodCallHandler((call) async {
     if (call.method == 'navigate' && call.arguments is String) {
       final route = (call.arguments as String).trim();
       if (route.isNotEmpty) onNavigate(route);
+    } else if (call.method == 'syncPending') {
+      onPendingActions?.call();
     }
   });
   _widgetChannel

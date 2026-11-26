@@ -6,11 +6,35 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.view.View
 import android.widget.RemoteViews
-import org.json.JSONArray
 
 class PowerHabitsWidgetProvider : AppWidgetProvider() {
+    override fun onReceive(context: Context, intent: Intent) {
+        when (intent.action) {
+            ACTION_TOGGLE_ROUTINE -> {
+                val id = intent.getStringExtra(EXTRA_ROUTINE_ID).orEmpty()
+                if (id.isNotEmpty()) {
+                    WidgetStore.toggleRoutine(context, id)
+                }
+            }
+            ACTION_CYCLE_FILTER -> {
+                WidgetStore.cycleHoyFilter(context)
+                updateAll(context)
+            }
+            ACTION_HOY_PAGE -> {
+                val delta = intent.getIntExtra(EXTRA_PAGE_DELTA, 1)
+                val filter = WidgetStore.getHoyFilter(context)
+                val filtered = filterItems(WidgetStore.getTodayItems(context), filter)
+                val pages = ((filtered.size + PAGE_SIZE - 1) / PAGE_SIZE).coerceAtLeast(1)
+                WidgetStore.shiftHoyPage(context, delta, pages)
+                updateAll(context)
+            }
+        }
+        super.onReceive(context, intent)
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -22,8 +46,23 @@ class PowerHabitsWidgetProvider : AppWidgetProvider() {
     }
 
     companion object {
-        const val PREFS = "power_habits_widget"
-        const val EXTRA_ROUTE = "widget_route"
+        const val PREFS = WidgetStore.PREFS
+        const val EXTRA_ROUTE = WidgetStore.EXTRA_ROUTE
+        const val ACTION_TOGGLE_ROUTINE = "com.daltex.power_habits.WIDGET_TOGGLE_ROUTINE"
+        const val ACTION_CYCLE_FILTER = "com.daltex.power_habits.WIDGET_CYCLE_FILTER"
+        const val ACTION_HOY_PAGE = "com.daltex.power_habits.WIDGET_HOY_PAGE"
+        const val EXTRA_ROUTINE_ID = "routine_id"
+        const val EXTRA_PAGE_DELTA = "page_delta"
+        private const val PAGE_SIZE = 4
+
+        private fun filterItems(
+            items: List<WidgetRoutineItem>,
+            filter: String
+        ): List<WidgetRoutineItem> = when (filter) {
+            "personal" -> items.filter { it.contextType == "personal" }
+            "work" -> items.filter { it.contextType == "work" }
+            else -> items
+        }
 
         fun updateAll(context: Context) {
             val mgr = AppWidgetManager.getInstance(context)
@@ -40,77 +79,160 @@ class PowerHabitsWidgetProvider : AppWidgetProvider() {
             mgr: AppWidgetManager,
             appWidgetId: Int
         ) {
-            val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            val pct = prefs.getInt("pct", 0).coerceIn(0, 100)
-            val doneCount = prefs.getInt("doneCount", 0)
-            val totalCount = prefs.getInt("totalCount", 0)
-            val rawTitles = prefs.getString("pendingTitles", "[]") ?: "[]"
+            val filter = WidgetStore.getHoyFilter(context)
+            val allItems = WidgetStore.getTodayItems(context)
+            val filtered = filterItems(allItems, filter)
 
-            val pending = mutableListOf<String>()
-            try {
-                val arr = JSONArray(rawTitles)
-                for (i in 0 until minOf(arr.length(), 3)) {
-                    val text = arr.optString(i).trim()
-                    if (text.isNotEmpty()) pending.add(text)
-                }
-            } catch (_: Exception) {
-                // Ignorar JSON malformado en preferencias previas.
-            }
+            val total = filtered.size
+            val done = filtered.count { it.completed }
+            val pct = if (total == 0) 0 else ((done * 100.0) / total).toInt().coerceIn(0, 100)
+
+            val totalPages = ((total + PAGE_SIZE - 1) / PAGE_SIZE).coerceAtLeast(1)
+            val page = WidgetStore.getHoyPage(context).coerceIn(0, totalPages - 1)
+            val start = page * PAGE_SIZE
+            val pageItems = filtered.drop(start).take(PAGE_SIZE)
 
             val views = RemoteViews(context.packageName, R.layout.power_habits_widget)
-            views.setTextViewText(R.id.tv_header, "Power Habits · Hoy")
+            views.setTextViewText(R.id.tv_header, "Hoy")
             views.setTextViewText(R.id.tv_pct, "$pct%")
             views.setTextViewText(
                 R.id.tv_count,
-                if (totalCount > 0) "$doneCount/$totalCount" else "Sin rutinas"
+                if (total > 0) "$done de $total completadas" else "Sin pendientes"
             )
             views.setProgressBar(R.id.pb_progress, 100, pct, false)
 
-            val itemIds = intArrayOf(R.id.tv_item_1, R.id.tv_item_2, R.id.tv_item_3)
-            if (pending.isEmpty()) {
-                val emptyText = if (totalCount > 0 && doneCount >= totalCount) {
-                    "Todo completado por hoy"
-                } else {
-                    "Abre la app para ver tus rutinas"
+            // Filter pill styling & label
+            val (filterLabel, filterBg, filterText) = when (filter) {
+                "personal" -> Triple("Personal", R.drawable.widget_pill_pink, Color.parseColor("#5C2840"))
+                "work" -> Triple("Laboral", R.drawable.widget_pill_gray, Color.parseColor("#2C2F33"))
+                else -> Triple("Todo", R.drawable.widget_pill_pink, Color.parseColor("#5C2840"))
+            }
+            views.setTextViewText(R.id.btn_filter, filterLabel)
+            views.setInt(R.id.btn_filter, "setBackgroundResource", filterBg)
+            views.setTextColor(R.id.btn_filter, filterText)
+
+            val filterPending = PendingIntent.getBroadcast(
+                context,
+                3001,
+                Intent(context, PowerHabitsWidgetProvider::class.java).apply {
+                    action = ACTION_CYCLE_FILTER
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.btn_filter, filterPending)
+
+            // Open app & add buttons
+            val openTodayPending = PendingIntent.getActivity(
+                context,
+                3002,
+                Intent(context, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    putExtra(EXTRA_ROUTE, "/hoy")
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.area_open_today, openTodayPending)
+            views.setOnClickPendingIntent(R.id.tv_empty, openTodayPending)
+
+            val addPending = PendingIntent.getActivity(
+                context,
+                3003,
+                Intent(context, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    putExtra(EXTRA_ROUTE, "/hoy?new=1")
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.btn_add, addPending)
+
+            val rowIds = intArrayOf(R.id.row_1, R.id.row_2, R.id.row_3, R.id.row_4)
+            val chkIds = intArrayOf(R.id.chk_1, R.id.chk_2, R.id.chk_3, R.id.chk_4)
+            val txtIds = intArrayOf(R.id.tv_item_1, R.id.tv_item_2, R.id.tv_item_3, R.id.tv_item_4)
+            val tagIds = intArrayOf(R.id.tag_1, R.id.tag_2, R.id.tag_3, R.id.tag_4)
+
+            if (pageItems.isEmpty()) {
+                val emptyMsg = when {
+                    allItems.isEmpty() -> "Abre Power Habits para cargar tus rutinas"
+                    filter == "personal" -> "Sin rutinas personales para hoy"
+                    filter == "work" -> "Sin tareas laborales para hoy"
+                    else -> "Todo completado por hoy"
                 }
-                views.setTextViewText(itemIds[0], emptyText)
-                views.setViewVisibility(itemIds[0], View.VISIBLE)
-                views.setViewVisibility(itemIds[1], View.GONE)
-                views.setViewVisibility(itemIds[2], View.GONE)
+                views.setTextViewText(R.id.tv_empty, emptyMsg)
+                views.setViewVisibility(R.id.tv_empty, View.VISIBLE)
+                for (rid in rowIds) views.setViewVisibility(rid, View.GONE)
             } else {
-                for (i in itemIds.indices) {
-                    if (i < pending.size) {
-                        views.setTextViewText(itemIds[i], "• ${pending[i]}")
-                        views.setViewVisibility(itemIds[i], View.VISIBLE)
+                views.setViewVisibility(R.id.tv_empty, View.GONE)
+                for (i in 0 until PAGE_SIZE) {
+                    if (i < pageItems.size) {
+                        val item = pageItems[i]
+                        views.setViewVisibility(rowIds[i], View.VISIBLE)
+                        views.setTextViewText(txtIds[i], item.title)
+
+                        if (item.completed) {
+                            views.setInt(rowIds[i], "setBackgroundResource", R.drawable.widget_row_done_bg)
+                            views.setInt(chkIds[i], "setBackgroundResource", R.drawable.widget_check_on)
+                            views.setTextViewText(chkIds[i], "✓")
+                            views.setTextColor(txtIds[i], Color.parseColor("#6B7280"))
+                        } else {
+                            views.setInt(rowIds[i], "setBackgroundResource", R.drawable.widget_row_bg)
+                            views.setInt(chkIds[i], "setBackgroundResource", R.drawable.widget_check_off)
+                            views.setTextViewText(chkIds[i], "")
+                            views.setTextColor(txtIds[i], Color.parseColor("#141517"))
+                        }
+
+                        if (item.contextType == "work") {
+                            views.setTextViewText(tagIds[i], "L")
+                            views.setInt(tagIds[i], "setBackgroundResource", R.drawable.widget_pill_gray)
+                            views.setTextColor(tagIds[i], Color.parseColor("#2C2F33"))
+                        } else {
+                            views.setTextViewText(tagIds[i], "P")
+                            views.setInt(tagIds[i], "setBackgroundResource", R.drawable.widget_pill_pink)
+                            views.setTextColor(tagIds[i], Color.parseColor("#5C2840"))
+                        }
+
+                        val toggleIntent = Intent(context, PowerHabitsWidgetProvider::class.java).apply {
+                            action = ACTION_TOGGLE_ROUTINE
+                            putExtra(EXTRA_ROUTINE_ID, item.id)
+                        }
+                        val togglePending = PendingIntent.getBroadcast(
+                            context,
+                            3100 + i,
+                            toggleIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        )
+                        views.setOnClickPendingIntent(rowIds[i], togglePending)
                     } else {
-                        views.setViewVisibility(itemIds[i], View.GONE)
+                        views.setViewVisibility(rowIds[i], View.GONE)
                     }
                 }
             }
 
-            val openTodayIntent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                putExtra(EXTRA_ROUTE, "/hoy")
+            if (totalPages > 1) {
+                views.setViewVisibility(R.id.pager_row, View.VISIBLE)
+                views.setTextViewText(R.id.tv_page_info, "Página ${page + 1} de $totalPages")
+                val prevPending = PendingIntent.getBroadcast(
+                    context,
+                    3201,
+                    Intent(context, PowerHabitsWidgetProvider::class.java).apply {
+                        action = ACTION_HOY_PAGE
+                        putExtra(EXTRA_PAGE_DELTA, -1)
+                    },
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                val nextPending = PendingIntent.getBroadcast(
+                    context,
+                    3202,
+                    Intent(context, PowerHabitsWidgetProvider::class.java).apply {
+                        action = ACTION_HOY_PAGE
+                        putExtra(EXTRA_PAGE_DELTA, 1)
+                    },
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(R.id.btn_prev_page, prevPending)
+                views.setOnClickPendingIntent(R.id.btn_next_page, nextPending)
+            } else {
+                views.setViewVisibility(R.id.pager_row, View.GONE)
             }
-            val openTodayPending = PendingIntent.getActivity(
-                context,
-                2001,
-                openTodayIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            views.setOnClickPendingIntent(R.id.widget_root, openTodayPending)
-
-            val addIntent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                putExtra(EXTRA_ROUTE, "/hoy?new=1")
-            }
-            val addPending = PendingIntent.getActivity(
-                context,
-                2002,
-                addIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            views.setOnClickPendingIntent(R.id.btn_add, addPending)
 
             mgr.updateAppWidget(appWidgetId, views)
         }
