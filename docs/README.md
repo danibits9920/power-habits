@@ -1,6 +1,6 @@
 # Power Habits — Documentación del Proyecto
 
-**Estado actual:** Release `v0.1.0` **APROBADO** e integrado en `main`  
+**Estado actual:** Release `v0.3.1` publicado en `main` + Identidad de Marca *Calm Voltage*  
 **Tipo:** App móvil Flutter (Local-First → Supabase) de hábitos, tareas diarias, metas y logros  
 **Repositorio GitHub:** https://github.com/danibits9920/power-habits
 
@@ -13,6 +13,10 @@
 - [05-arquitectura-tecnica.md](./05-arquitectura-tecnica.md) — Stack Flutter + Drift (Supabase-ready), Kotlin MethodChannels, Auto-Updater y CI/CD.
 - [06-hoja-de-ruta-y-spec.md](./06-hoja-de-ruta-y-spec.md) — Spec completo, hoja de ruta, matriz de agentes paralelos y criterios de aprobación.
 - [07-veredicto-orquestador.md](./07-veredicto-orquestador.md) — Acta de auditoría multi-rama, hallazgos resueltos, evidencia de pruebas/APK y veredicto final (`APROBADO`).
+- [08-identidad-de-marca.md](./08-identidad-de-marca.md) — **Manual de Identidad de Marca completa (*Calm Voltage*)**: ADN, voz, isotipo *Volt-Check*, cromática oficial y las 3 propuestas tipográficas.
+- [brand-book-power-habits.html](./brand-book-power-habits.html) — **Brand Book interactivo con selector de fuentes en vivo** (`Kinetic Precision`, `Volt Avant-Garde`, `Swiss Instrument`).
+- [power-habits-brand-identity-sheet.png](./power-habits-brand-identity-sheet.png) — Lámina resumen en alta resolución de la identidad de marca y comparativa tipográfica.
+- [power-habits-logo-propuesta.png](./power-habits-logo-propuesta.png) — Lámina del isotipo *Volt-Check* (diurno, nocturno y lockup horizontal).
 - [DESIGN.md](./DESIGN.md) — Sistema de diseño oficial **v2 (Soft Glass Minimal: rosado pastel + verde fosforescente + blanco/gris)** generado con `ui-ux-pro-max`.
 - [MASTER.md](../design-system/mis-habitos/MASTER.md) — Guía maestra de tokens, contraste WCAG y reglas Flutter (`ui-ux-pro-max`).
 - [prototipo-tutorial-interactivo.html](./prototipo-tutorial-interactivo.html) — Prototipo y tutorial interactivo local para probar en vivo cada flujo (A–G).

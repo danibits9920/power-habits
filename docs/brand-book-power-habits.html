@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Power Habits — Identidad de Marca & Sistema Tipográfico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Manrope:wght@500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-top: #F4F5F8;
+      --bg-bottom: #FFFFFF;
+      --ink: #141517;
+      --ink-muted: #5F6570;
+      --volt: #6BFF3B;
+      --blush: #F8C8DC;
+      --blush-soft: #FDECF3;
+      --blush-ink: #5C2840;
+      --work-soft: #E8EAEE;
+      --work-ink: #2C2F33;
+      --border: #E5E7EB;
+      --card: rgba(255, 255, 255, 0.86);
+
+      /* Active typography variables (default: Option 1 Kinetic Precision) */
+      --font-display: 'Bricolage Grotesque', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --display-tracking: -0.032em;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 88% 8%, rgba(248, 200, 220, 0.42), transparent 34%),
+        radial-gradient(circle at 12% 38%, rgba(107, 255, 59, 0.10), transparent 28%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      min-height: 100vh;
+      padding: 36px 28px 64px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Top Brand Masthead */
+    .masthead {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--blush-ink);
+      background: var(--blush-soft);
+      padding: 5px 11px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .masthead h1 {
+      font-family: var(--font-display);
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: var(--display-tracking);
+      line-height: 1.04;
+    }
+
+    .masthead p {
+      color: var(--ink-muted);
+      font-size: 15px;
+      max-width: 560px;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    /* Switcher Pills */
+    .switcher-bar {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      box-shadow: 0 10px 28px rgba(20, 21, 23, 0.05);
+    }
+
+    .preset-btn {
+      border: none;
+      background: transparent;
+      padding: 10px 15px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      transition: all 0.18s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .preset-btn:hover {
+      color: var(--ink);
+      background: rgba(20,21,23,0.04);
+    }
+
+    .preset-btn.active {
+      background: var(--volt);
+      color: var(--ink);
+      box-shadow: 0 4px 12px rgba(107, 255, 59, 0.32);
+    }
+
+    .badge-rec {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: #141517;
+      color: #6BFF3B;
+      font-weight: 700;
+    }
+
+    /* Bento Grid Row 1: Brand Identity Pillars + Logo + Live App */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.28fr 0.92fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.95);
+      outline: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 26px;
+      box-shadow: 0 14px 34px rgba(20, 21, 23, 0.045);
+    }
+
+    .panel-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-muted);
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+    }
+
+    /* Logo Showcase */
+    .logo-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .hero-lockup-box {
+      background: linear-gradient(145deg, #FFFFFF 0%, #F6F7FA 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 26px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .squircle {
+      width: 74px;
+      height: 74px;
+      border-radius: 20px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .squircle.light {
+      background: radial-gradient(circle at 84% 16%, rgba(248, 200, 220, 0.65) 0%, rgba(248, 200, 220, 0) 58%), #F7F7FA;
+      border: 1.5px solid #E4E6EC;
+      box-shadow: 0 10px 24px rgba(20, 21, 23, 0.08);
+    }
+
+    .squircle.dark {
+      background: #141517;
+      border: 1.5px solid #2A2E35;
+      box-shadow: 0 10px 24px rgba(20, 21, 23, 0.18);
+    }
+
+    .squircle.sm {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+    }
+
+    .wordmark-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 30px;
+      letter-spacing: var(--display-tracking);
+      line-height: 1.02;
+      color: var(--ink);
+    }
+
+    .wordmark-tagline {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-muted);
+      margin-top: 5px;
+    }
+
+    .icon-variants {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .variant-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+    }
+
+    .variant-meta strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .variant-meta span {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-muted);
+    }
+
+    /* Color Swatches */
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .swatch {
+      border-radius: 16px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 98px;
+    }
+
+    .swatch .name {
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .swatch .hex {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      opacity: 0.85;
+      margin-top: 4px;
+    }
+
+    .swatch .ratio {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      margin-top: 12px;
+    }
+
+    /* 3 Font Proposals Side-by-Side Comparison */
+    .font-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 980px) {
+      .font-cards { grid-template-columns: 1fr; }
+    }
+
+    .font-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--border);
+      border-radius: 22px;
+      padding: 22px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .font-card:hover {
+      border-color: #141517;
+      transform: translateY(-2px);
+    }
+
+    .font-card.selected {
+      border: 2px solid #141517;
+      box-shadow: 0 14px 32px rgba(20, 21, 23, 0.09);
+    }
+
+    .font-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .font-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--work-soft);
+      color: var(--work-ink);
+    }
+
+    .font-card.selected .font-tag {
+      background: var(--volt);
+      color: #141517;
+    }
+
+    .specimen-hero {
+      font-size: 29px;
+      line-height: 1.05;
+      color: var(--ink);
+      padding: 8px 0 4px;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .specimen-metric {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .specimen-pct {
+      font-size: 32px;
+      line-height: 1;
+    }
+
+    .specimen-pill {
+      font-size: 11.5px;
+      background: var(--blush-soft);
+      color: var(--blush-ink);
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .specimen-body {
+      font-size: 14px;
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    .font-pair-meta {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid #F1F2F6;
+      font-size: 12px;
+      color: var(--ink-muted);
+      line-height: 1.45;
+    }
+
+    /* Live Mobile Phone Preview */
+    .phone-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .phone-frame {
+      width: 366px;
+      border-radius: 38px;
+      padding: 18px 16px 16px;
+      background:
+        radial-gradient(circle at 86% 10%, rgba(248, 200, 220, 0.50), transparent 40%),
+        linear-gradient(180deg, #F3F4F7 0%, #FFFFFF 100%);
+      border: 7px solid #181A1E;
+      box-shadow: 0 22px 48px rgba(20, 21, 23, 0.14);
+      transition: all 0.25s ease;
+    }
+
+    .phone-frame.dark-mode {
+      background:
+        radial-gradient(circle at 86% 10%, rgba(74, 37, 54, 0.65), transparent 42%),
+        linear-gradient(180deg, #111315 0%, #181A1E 100%);
+      color: #F3F4F6;
+    }
+
+    .phone-status {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.7;
+      padding: 0 6px 12px;
+    }
+
+    .phone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .phone-h1 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: var(--display-tracking);
+      line-height: 1.05;
+    }
+
+    .phone-date {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      opacity: 0.68;
+      margin-top: 2px;
+    }
+
+    .mode-btn {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.8);
+      color: #141517;
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .phone-frame.dark-mode .mode-btn {
+      background: #22262C;
+      color: #F3F4F6;
+      border-color: #2E333B;
+    }
+
+    .app-card {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      outline: 1px solid rgba(229, 231, 235, 0.85);
+      border-radius: 20px;
+      padding: 14px 15px;
+      margin-bottom: 10px;
+    }
+
+    .phone-frame.dark-mode .app-card {
+      background: rgba(30, 33, 38, 0.92);
+      border-color: rgba(255, 255, 255, 0.08);
+      outline-color: #2A2E35;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .progress-label {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.015em;
+    }
+
+    .progress-num {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 27px;
+      letter-spacing: var(--display-tracking);
+    }
+
+    .bar-track {
+      height: 9px;
+      border-radius: 999px;
+      background: #E6E8EC;
+      overflow: hidden;
+      margin-bottom: 7px;
+    }
+
+    .phone-frame.dark-mode .bar-track { background: #2A2E35; }
+
+    .bar-fill {
+      height: 100%;
+      width: 75%;
+      background: var(--volt);
+      border-radius: 999px;
+    }
+
+    .progress-sub {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      opacity: 0.68;
+    }
+
+    .routine-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .check-box {
+      width: 26px;
+      height: 26px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .check-box.done {
+      background: var(--volt);
+      color: #141517;
+    }
+
+    .check-box.todo {
+      border: 1.8px solid #CBD0D8;
+    }
+
+    .routine-title {
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 14.5px;
+      line-height: 1.25;
+    }
+
+    .routine-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 3px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      opacity: 0.78;
+    }
+
+    .ctx-pill {
+      font-family: var(--font-body);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .ctx-personal { background: var(--blush-soft); color: var(--blush-ink); }
+    .ctx-work { background: var(--work-soft); color: var(--work-ink); }
+
+    .phone-frame.dark-mode .ctx-personal { background: rgba(248, 200, 220, 0.18); color: #FCDCE9; }
+    .phone-frame.dark-mode .ctx-work { background: #2A2E35; color: #D6DAE0; }
+
+    .goal-mini-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .plus-one {
+      background: var(--volt);
+      color: #141517;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 12px;
+      padding: 5px 11px;
+      border-radius: 999px;
+    }
+
+    .bottom-nav {
+      margin-top: 12px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      text-align: center;
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    .phone-frame.dark-mode .bottom-nav {
+      background: #22262C;
+      border-color: #2E333B;
+    }
+
+    .nav-item {
+      padding: 8px 0;
+      border-radius: 999px;
+      opacity: 0.65;
+    }
+
+    .nav-item.active {
+      background: var(--volt);
+      color: #141517;
+      opacity: 1;
+    }
+
+    /* Brand Voice Pillars */
+    .voice-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .voice-box {
+      background: #FAFAFC;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+
+    .voice-box h4 {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .voice-box p {
+      font-size: 12.5px;
+      color: var(--ink-muted);
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- MASTHEAD -->
+    <header class="masthead">
+      <div>
+        <span class="eyebrow">Manual de Marca · Power Habits v2</span>
+        <h1>Calm Voltage — Identidad & Tipografía</h1>
+        <p>Haz clic en cualquiera de las 3 propuestas tipográficas para transformar en vivo el logotipo, la escala jerárquica y la vista móvil real de <strong>Power Habits</strong>.</p>
+      </div>
+
+      <div class="switcher-bar" role="tablist" aria-label="Selector de sistema tipográfico">
+        <button class="preset-btn active" onclick="setPreset('kinetic', this)">
+          <span>1. Kinetic Precision</span>
+          <span class="badge-rec">RECOMENDADA</span>
+        </button>
+        <button class="preset-btn" onclick="setPreset('avant', this)">
+          <span>2. Volt Avant-Garde</span>
+        </button>
+        <button class="preset-btn" onclick="setPreset('swiss', this)">
+          <span>3. Swiss Instrument</span>
+        </button>
+        <button class="preset-btn" onclick="setPreset('current', this)">
+          <span>Actual (Outfit)</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ROW 1: BRAND SYSTEM + LIVE MOBILE APP -->
+    <section class="main-grid">
+      <!-- LEFT: LOGO, COLORS, VOICE -->
+      <div class="panel">
+        <div class="panel-label">
+          <span>01 · Símbolo "Volt-Check", Wordmark & Cromática</span>
+          <span id="active-font-indicator">Bricolage Grotesque + Plus Jakarta Sans + JetBrains Mono</span>
+        </div>
+
+        <div class="logo-grid">
+          <div class="hero-lockup-box">
+            <div class="brand-lockup">
+              <div class="squircle light">
+                <!-- Exact Volt-Check SVG Mark -->
+                <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M35.5 11L22.5 31.5H34.5L26.5 43.5" stroke="#141517" stroke-width="6.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M15.5 39.5L26.5 50.5L50.5 26.5" stroke="#141517" stroke-width="10.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M15.5 39.5L26.5 50.5L50.5 26.5" stroke="#6BFF3B" stroke-width="6.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <div class="wordmark-title">Power Habits</div>
+                <div class="wordmark-tagline">Pequeños impulsos. Progreso real.</div>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; padding-top:14px; border-top:1px solid #ECEEF2; font-size:12px; color:var(--ink-muted);">
+              <span>Arquetipo: <strong style="color:var(--ink);">El Atleta Sereno</strong></span>
+              <span style="font-family:var(--font-mono); font-size:11px;">Área libre ≥ 0.25X</span>
+            </div>
+          </div>
+
+          <div class="icon-variants">
+            <div class="variant-row">
+              <div class="squircle light sm">
+                <svg width="32" height="32" viewBox="0 0 64 64" fill="none">
+                  <path d="M35.5 11L22.5 31.5H34.5L26.5 43.5" stroke="#141517" stroke-width="6.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M15.5 39.5L26.5 50.5L50.5 26.5" stroke="#141517" stroke-width="10.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M15.5 39.5L26.5 50.5L50.5 26.5" stroke="#6BFF3B" stroke-width="6.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="variant-meta">
+                <strong>Porcelain Daylight</strong>
+                <span>Ícono principal Android / HyperOS</span>
+              </div>
+            </div>
+
+            <div class="variant-row">
+              <div class="squircle dark sm">
+                <svg width="32" height="32" viewBox="0 0 64 64" fill="none">
+                  <path d="M35.5 11L22.5 31.5H34.5L26.5 43.5" stroke="#F7F7FA" stroke-width="6.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M15.5 39.5L26.5 50.5L50.5 26.5" stroke="#6BFF3B" stroke-width="7.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="variant-meta">
+                <strong>Carbon Night</strong>
+                <span>Variante modo oscuro y splash nocturno</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLOR ARCHITECTURE -->
+        <div class="swatches">
+          <div class="swatch" style="background:#6BFF3B; color:#141517; border-color:#5CE82E;">
+            <div>
+              <div class="name">Volt Lime</div>
+              <div class="hex">#6BFF3B</div>
+            </div>
+            <div class="ratio">AAA · 14.1:1 c/ #141517</div>
+          </div>
+
+          <div class="swatch" style="background:#141517; color:#F7F7FA; border-color:#141517;">
+            <div>
+              <div class="name">Carbon Ink</div>
+              <div class="hex">#141517</div>
+            </div>
+            <div class="ratio">AAA · 16.8:1 s/ blanco</div>
+          </div>
+
+          <div class="swatch" style="background:#FDECF3; color:#5C2840; border-color:#F8C8DC;">
+            <div>
+              <div class="name">Blush Mist</div>
+              <div class="hex">#F8C8DC · #5C2840</div>
+            </div>
+            <div class="ratio">AAA · 8.2:1 Personal</div>
+          </div>
+
+          <div class="swatch" style="background:#E8EAEE; color:#2C2F33; border-color:#D8DCE3;">
+            <div>
+              <div class="name">Slate Work</div>
+              <div class="hex">#E8EAEE · #2C2F33</div>
+            </div>
+            <div class="ratio">AAA · 10.9:1 Laboral</div>
+          </div>
+        </div>
+
+        <!-- BRAND VOICE PILLARS -->
+        <div class="voice-grid">
+          <div class="voice-box">
+            <h4> Claridad sin ruido</h4>
+            <p>Reposo visual en blanco porcelana y cristal suave; la energía neón solo aparece cuando avanzas.</p>
+          </div>
+          <div class="voice-box">
+            <h4> Lenguaje real</h4>
+            <p>Rutinas, Tareas, Metas y Logros. Cero vocabulario infantil o regaños por días incompletos.</p>
+          </div>
+          <div class="voice-box">
+            <h4> Precisión táctil</h4>
+            <p>Cifras tabulares en metas (18/30), respuesta háptica y deslizamiento fluido 1:1 entre pestañas.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: LIVE INTERACTIVE PHONE PREVIEW -->
+      <div class="phone-wrap">
+        <div class="phone-frame" id="phoneFrame">
+          <div class="phone-status">
+            <span>09:41</span>
+            <span>POWER HABITS · LIVE</span>
+          </div>
+
+          <div class="phone-header">
+            <div>
+              <div class="phone-h1">Hoy</div>
+              <div class="phone-date">JUE 26 NOV · SEMANA 48</div>
+            </div>
+            <button class="mode-btn" onclick="toggleDark()">Claro / Oscuro</button>
+          </div>
+
+          <div class="app-card">
+            <div class="progress-top">
+              <span class="progress-label">Progreso de hoy</span>
+              <span class="progress-num">75%</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill"></div></div>
+            <div class="progress-sub">3 DE 4 COMPLETADAS · RACHA 7D</div>
+          </div>
+
+          <div class="app-card routine-row">
+            <div class="check-box done">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div style="flex:1;">
+              <div class="routine-title">Entrenamiento de fuerza</div>
+              <div class="routine-meta">
+                <span>07:00 · 4x/SEM (3/4)</span>
+                <span class="ctx-pill ctx-personal">Personal</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="app-card routine-row">
+            <div class="check-box todo"></div>
+            <div style="flex:1;">
+              <div class="routine-title">Revisión de arquitectura Sprint</div>
+              <div class="routine-meta">
+                <span>10:30 · L·M·V</span>
+                <span class="ctx-pill ctx-work">Laboral</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="app-card">
+            <div class="goal-mini-top">
+              <div>
+                <div class="routine-title">Curso de Inglés Avanzado</div>
+                <div class="routine-meta"><span>18 / 30 CLASES · HITO 50% SUPERADO</span></div>
+              </div>
+              <span class="plus-one">+1</span>
+            </div>
+            <div class="bar-track" style="height:7px; margin-bottom:0;"><div class="bar-fill" style="width:60%;"></div></div>
+          </div>
+
+          <div class="bottom-nav">
+            <div class="nav-item active">Hoy</div>
+            <div class="nav-item">Metas</div>
+            <div class="nav-item">Progreso</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROW 2: SIDE-BY-SIDE FONT PROPOSALS -->
+    <section class="panel">
+      <div class="panel-label">
+        <span>02 · Comparativa Directa de las 3 Propuestas Tipográficas</span>
+        <span>Haz clic en cualquier tarjeta para previsualizarla arriba</span>
+      </div>
+
+      <div class="font-cards">
+        <!-- CARD 1: KINETIC PRECISION -->
+        <article class="font-card selected" id="card-kinetic" onclick="setPresetById('kinetic')">
+          <div class="font-card-top">
+            <span class="font-tag">OPCIÓN 1 · RECOMENDADA</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-muted);">Boutique & Expresiva</span>
+          </div>
+          <div class="specimen-hero" style="font-family:'Bricolage Grotesque',sans-serif; font-weight:800; letter-spacing:-0.032em;">
+            Power Habits<br/>Hoy · Metas
+          </div>
+          <div class="specimen-metric">
+            <span class="specimen-pct" style="font-family:'Bricolage Grotesque',sans-serif; font-weight:800; letter-spacing:-0.035em;">86%</span>
+            <span class="specimen-pill" style="font-family:'JetBrains Mono',monospace;">18/30 CLASES</span>
+          </div>
+          <p class="specimen-body" style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:500;">
+            <strong>Skincare nocturno</strong> — Curvas con cortes escultóricos sutiles en titulares que le dan sello propio de marca sin cansar la vista.
+          </p>
+          <div class="font-pair-meta">
+            <strong>Display:</strong> Bricolage Grotesque (800/700)<br/>
+            <strong>UI / Cuerpo:</strong> Plus Jakarta Sans (500/600)<br/>
+            <strong>Datos:</strong> JetBrains Mono (600)
+          </div>
+        </article>
+
+        <!-- CARD 2: VOLT AVANT-GARDE -->
+        <article class="font-card" id="card-avant" onclick="setPresetById('avant')">
+          <div class="font-card-top">
+            <span class="font-tag">OPCIÓN 2 · VANGUARDIA</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-muted);">Deportiva & Disruptiva</span>
+          </div>
+          <div class="specimen-hero" style="font-family:'Syne',sans-serif; font-weight:800; letter-spacing:-0.035em;">
+            Power Habits<br/>Hoy · Metas
+          </div>
+          <div class="specimen-metric">
+            <span class="specimen-pct" style="font-family:'Syne',sans-serif; font-weight:800; letter-spacing:-0.04em;">86%</span>
+            <span class="specimen-pill" style="font-family:'Space Mono',monospace;">18/30 CLASES</span>
+          </div>
+          <p class="specimen-body" style="font-family:'DM Sans',sans-serif; font-weight:500;">
+            <strong>Skincare nocturno</strong> — Titulares anchos y radicales estilo estudio experimental; cuerpo ultra limpio en DM Sans.
+          </p>
+          <div class="font-pair-meta">
+            <strong>Display:</strong> Syne (800/700, solo títulos cortos)<br/>
+            <strong>UI / Cuerpo:</strong> DM Sans (500/600)<br/>
+            <strong>Datos:</strong> Space Mono (700)
+          </div>
+        </article>
+
+        <!-- CARD 3: SWISS INSTRUMENT -->
+        <article class="font-card" id="card-swiss" onclick="setPresetById('swiss')">
+          <div class="font-card-top">
+            <span class="font-tag">OPCIÓN 3 · PRECISIÓN TÉCNICA</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-muted);">Ingenieril & Suiza</span>
+          </div>
+          <div class="specimen-hero" style="font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-0.03em;">
+            Power Habits<br/>Hoy · Metas
+          </div>
+          <div class="specimen-metric">
+            <span class="specimen-pct" style="font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:-0.03em;">86%</span>
+            <span class="specimen-pill" style="font-family:'JetBrains Mono',monospace;">18/30 CLASES</span>
+          </div>
+          <p class="specimen-body" style="font-family:'Manrope',sans-serif; font-weight:500;">
+            <strong>Skincare nocturno</strong> — Geometría cuadrada y técnica que conecta los números con los ángulos rectos del rayo.
+          </p>
+          <div class="font-pair-meta">
+            <strong>Display:</strong> Space Grotesk (700)<br/>
+            <strong>UI / Cuerpo:</strong> Manrope (500/600)<br/>
+            <strong>Datos:</strong> JetBrains Mono (600)
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const presets = {
+      kinetic: {
+        display: "'Bricolage Grotesque', sans-serif",
+        body: "'Plus Jakarta Sans', sans-serif",
+        mono: "'JetBrains Mono', monospace",
+        tracking: "-0.032em",
+        label: "Bricolage Grotesque + Plus Jakarta Sans + JetBrains Mono"
+      },
+      avant: {
+        display: "'Syne', sans-serif",
+        body: "'DM Sans', sans-serif",
+        mono: "'Space Mono', monospace",
+        tracking: "-0.038em",
+        label: "Syne + DM Sans + Space Mono"
+      },
+      swiss: {
+        display: "'Space Grotesk', sans-serif",
+        body: "'Manrope', sans-serif",
+        mono: "'JetBrains Mono', monospace",
+        tracking: "-0.028em",
+        label: "Space Grotesk + Manrope + JetBrains Mono"
+      },
+      current: {
+        display: "'Outfit', sans-serif",
+        body: "'Work Sans', sans-serif",
+        mono: "'Work Sans', sans-serif",
+        tracking: "-0.02em",
+        label: "Actual v0.3.1: Outfit + Work Sans"
+      }
+    };
+
+    function applyPreset(key) {
+      const p = presets[key];
+      const r = document.documentElement.style;
+      r.setProperty('--font-display', p.display);
+      r.setProperty('--font-body', p.body);
+      r.setProperty('--font-mono', p.mono);
+      r.setProperty('--display-tracking', p.tracking);
+      document.getElementById('active-font-indicator').textContent = p.label;
+
+      document.querySelectorAll('.font-card').forEach(c => c.classList.remove('selected'));
+      const card = document.getElementById('card-' + key);
+      if (card) card.classList.add('selected');
+    }
+
+    function setPreset(key, btn) {
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyPreset(key);
+    }
+
+    function setPresetById(key) {
+      const idx = { kinetic: 0, avant: 1, swiss: 2, current: 3 }[key];
+      const btns = document.querySelectorAll('.preset-btn');
+      btns.forEach(b => b.classList.remove('active'));
+      if (btns[idx]) btns[idx].classList.add('active');
+      applyPreset(key);
+    }
+
+    function toggleDark() {
+      document.getElementById('phoneFrame').classList.toggle('dark-mode');
+    }
+  </script>
+</body>
+</html>
