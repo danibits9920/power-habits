@@ -8,6 +8,7 @@ import '../../core/frequency.dart';
 import '../../core/providers.dart';
 import '../../data/db.dart';
 import '../../design/glass.dart';
+import '../../design/motion.dart';
 import '../../design/tokens.dart';
 
 /// Abre el formulario inferior Soft Glass para crear o editar una rutina/tarea.
@@ -63,6 +64,9 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
   late String _contextType;
   late String _frequencyType;
   late Set<int> _selectedWeekdays;
+  late int _alternateInterval; // 2 o 3 días
+  late bool _alternateHasWeeklyLimit;
+  late int _weeklyQuota; // 1..6 para weekly_x
   late String _timeSlot;
   late DateTime _anchorDate;
   late List<String> _reminders;
@@ -81,13 +85,27 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
     _titleCtrl = TextEditingController(text: e?.title ?? '');
     _itemType = e?.itemType ?? widget.defaultItemType;
     _contextType = e?.context ?? 'personal';
-    _frequencyType = e != null
+    final rawFreq = e != null
         ? e.frequencyType
         : (_itemType == 'task' ? 'once' : 'daily');
+    if (rawFreq == 'every_3_days') {
+      _frequencyType = 'alternate';
+      _alternateInterval = 3;
+    } else {
+      _frequencyType = rawFreq;
+      _alternateInterval = 2;
+    }
     final parsedMask = e != null
         ? parseWeekdaysMask(e.weekdaysMask)
         : <int>{1, 3, 5};
-    _selectedWeekdays = parsedMask.isEmpty ? {1, 2, 3, 4, 5, 6, 7} : parsedMask;
+    _alternateHasWeeklyLimit =
+        (rawFreq == 'alternate' || rawFreq == 'every_3_days') &&
+        parsedMask.isNotEmpty &&
+        parsedMask.length < 7;
+    _selectedWeekdays = parsedMask.isEmpty ? {1, 3, 5} : parsedMask;
+    _weeklyQuota = e != null && rawFreq == 'weekly_x'
+        ? weeklyTargetCount(e)
+        : 3;
     _timeSlot = e?.timeSlot ?? 'morning';
     _anchorDate = e != null
         ? parseDayStr(e.anchorDate)
@@ -169,9 +187,11 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
       setState(() => _titleError = 'Escribe un nombre para continuar');
       return;
     }
-    if (_itemType == 'routine' &&
-        _frequencyType == 'weekdays' &&
-        _selectedWeekdays.isEmpty) {
+    final needsDays =
+        _itemType == 'routine' &&
+        (_frequencyType == 'weekdays' ||
+            (_frequencyType == 'alternate' && _alternateHasWeeklyLimit));
+    if (needsDays && _selectedWeekdays.isEmpty) {
       setState(() => _weekdaysError = 'Selecciona al menos un día');
       return;
     }
@@ -184,11 +204,26 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
 
     try {
       final repo = ref.read(routineRepoProvider);
-      final effectiveFreq = _itemType == 'task' ? 'once' : _frequencyType;
+      final String effectiveFreq;
+      if (_itemType == 'task') {
+        effectiveFreq = 'once';
+      } else if (_frequencyType == 'alternate' && _alternateInterval == 3) {
+        effectiveFreq = 'every_3_days';
+      } else {
+        effectiveFreq = _frequencyType;
+      }
+
       final sortedDays = _selectedWeekdays.toList()..sort();
-      final mask = effectiveFreq == 'weekdays'
-          ? sortedDays.join(',')
-          : '1,2,3,4,5,6,7';
+      final String mask;
+      if (effectiveFreq == 'weekly_x') {
+        mask = '$_weeklyQuota';
+      } else if (effectiveFreq == 'weekdays' ||
+          ((effectiveFreq == 'alternate' || effectiveFreq == 'every_3_days') &&
+              _alternateHasWeeklyLimit)) {
+        mask = sortedDays.join(',');
+      } else {
+        mask = '1,2,3,4,5,6,7';
+      }
       final sortedReminders = [..._reminders]..sort();
 
       final String savedId;
@@ -405,24 +440,69 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
             const SizedBox(height: Sp.x2),
             Row(
               children: [
-                for (final (code, label) in const [
-                  ('daily', 'Diaria'),
-                  ('alternate', 'Interdiaria'),
-                  ('weekdays', 'Días fijos'),
-                ]) ...[
-                  Expanded(
-                    child: _SelectablePill(
-                      label: label,
-                      selected: _frequencyType == code,
-                      useNeon: true,
-                      onTap: () => setState(() {
-                        _frequencyType = code;
+                Expanded(
+                  child: _SelectablePill(
+                    label: 'Diaria',
+                    selected: _frequencyType == 'daily',
+                    useNeon: true,
+                    onTap: () {
+                      PowerHaptics.tap();
+                      setState(() {
+                        _frequencyType = 'daily';
                         _weekdaysError = null;
-                      }),
-                    ),
+                      });
+                    },
                   ),
-                  if (code != 'weekdays') const SizedBox(width: Sp.x2),
-                ],
+                ),
+                const SizedBox(width: Sp.x2),
+                Expanded(
+                  child: _SelectablePill(
+                    label: 'Interdiaria',
+                    selected: _frequencyType == 'alternate',
+                    useNeon: true,
+                    onTap: () {
+                      PowerHaptics.tap();
+                      setState(() {
+                        _frequencyType = 'alternate';
+                        _weekdaysError = null;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: Sp.x2),
+            Row(
+              children: [
+                Expanded(
+                  child: _SelectablePill(
+                    label: 'Días fijos',
+                    selected: _frequencyType == 'weekdays',
+                    useNeon: true,
+                    onTap: () {
+                      PowerHaptics.tap();
+                      setState(() {
+                        _frequencyType = 'weekdays';
+                        _weekdaysError = null;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(width: Sp.x2),
+                Expanded(
+                  child: _SelectablePill(
+                    label: 'X veces/sem',
+                    selected: _frequencyType == 'weekly_x',
+                    useNeon: true,
+                    onTap: () {
+                      PowerHaptics.tap();
+                      setState(() {
+                        _frequencyType = 'weekly_x';
+                        _weekdaysError = null;
+                      });
+                    },
+                  ),
+                ),
               ],
             ),
             if (_frequencyType == 'weekdays') ...[
@@ -435,7 +515,10 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
                         label: kInitialWeekdays[day - 1],
                         tooltip: kShortWeekdays[day - 1],
                         selected: _selectedWeekdays.contains(day),
-                        onTap: () => _toggleWeekday(day),
+                        onTap: () {
+                          PowerHaptics.tap();
+                          _toggleWeekday(day);
+                        },
                       ),
                     ),
                     if (day < 7) const SizedBox(width: 6),
@@ -452,11 +535,139 @@ class _RoutineFormBodyState extends ConsumerState<_RoutineFormBody> {
             ],
             if (_frequencyType == 'alternate') ...[
               const SizedBox(height: Sp.x3),
-              _DateInfoPill(
-                icon: LucideIcons.repeat,
-                label: 'Cada 2 días desde ${shortDateEs(_anchorDate)}',
-                editable: true,
-                onTap: _pickAnchorDate,
+              Row(
+                children: [
+                  Expanded(
+                    child: _SelectablePill(
+                      label: 'Cada 2 días',
+                      selected: _alternateInterval == 2,
+                      useNeon: false,
+                      onTap: () {
+                        PowerHaptics.tap();
+                        setState(() => _alternateInterval = 2);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: Sp.x2),
+                  Expanded(
+                    child: _SelectablePill(
+                      label: 'Cada 3 días',
+                      selected: _alternateInterval == 3,
+                      useNeon: false,
+                      onTap: () {
+                        PowerHaptics.tap();
+                        setState(() => _alternateInterval = 3);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: Sp.x3),
+              Text(
+                '¿Cuántos días a la semana?',
+                style: tt.bodySmall?.copyWith(color: pc.inkMuted),
+              ),
+              const SizedBox(height: Sp.x2),
+              Row(
+                children: [
+                  for (final (count, label) in const [
+                    (0, 'Continua'),
+                    (2, '2d'),
+                    (3, '3d'),
+                    (4, '4d'),
+                    (5, '5d'),
+                  ]) ...[
+                    Expanded(
+                      child: _SelectablePill(
+                        label: label,
+                        selected: count == 0
+                            ? !_alternateHasWeeklyLimit
+                            : (_alternateHasWeeklyLimit &&
+                                  _selectedWeekdays.length == count),
+                        useNeon: true,
+                        onTap: () {
+                          PowerHaptics.tap();
+                          setState(() {
+                            _weekdaysError = null;
+                            if (count == 0) {
+                              _alternateHasWeeklyLimit = false;
+                            } else {
+                              _alternateHasWeeklyLimit = true;
+                              _selectedWeekdays = alternateDaysPreset(count);
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                    if (count != 5) const SizedBox(width: 6),
+                  ],
+                ],
+              ),
+              const SizedBox(height: Sp.x3),
+              if (_alternateHasWeeklyLimit) ...[
+                Row(
+                  children: [
+                    for (var day = 1; day <= 7; day++) ...[
+                      Expanded(
+                        child: _WeekdayChip(
+                          label: kInitialWeekdays[day - 1],
+                          tooltip: kShortWeekdays[day - 1],
+                          selected: _selectedWeekdays.contains(day),
+                          onTap: () {
+                            PowerHaptics.tap();
+                            _toggleWeekday(day);
+                          },
+                        ),
+                      ),
+                      if (day < 7) const SizedBox(width: 6),
+                    ],
+                  ],
+                ),
+                if (_weekdaysError != null) ...[
+                  const SizedBox(height: Sp.x2),
+                  Text(
+                    _weekdaysError!,
+                    style: tt.bodySmall?.copyWith(color: pc.danger),
+                  ),
+                ],
+              ] else
+                _DateInfoPill(
+                  icon: LucideIcons.repeat,
+                  label:
+                      'Cada $_alternateInterval días desde ${shortDateEs(_anchorDate)}',
+                  editable: true,
+                  onTap: _pickAnchorDate,
+                ),
+            ],
+            if (_frequencyType == 'weekly_x') ...[
+              const SizedBox(height: Sp.x3),
+              Text(
+                'Meta flexible semanal (sin día fijo)',
+                style: tt.bodySmall?.copyWith(color: pc.inkMuted),
+              ),
+              const SizedBox(height: Sp.x2),
+              Row(
+                children: [
+                  for (var q = 1; q <= 6; q++) ...[
+                    Expanded(
+                      child: _WeekdayChip(
+                        label: '$q',
+                        tooltip: '$q ${q == 1 ? 'vez' : 'veces'} por semana',
+                        selected: _weeklyQuota == q,
+                        onTap: () {
+                          PowerHaptics.tap();
+                          setState(() => _weeklyQuota = q);
+                        },
+                      ),
+                    ),
+                    if (q < 6) const SizedBox(width: 6),
+                  ],
+                ],
+              ),
+              const SizedBox(height: Sp.x2),
+              Text(
+                'Aparece en Hoy hasta completar $_weeklyQuota ${_weeklyQuota == 1 ? 'vez' : 'veces'} entre lunes y domingo.',
+                style: tt.bodySmall?.copyWith(color: pc.inkMuted),
               ),
             ],
             const SizedBox(height: Sp.x5),

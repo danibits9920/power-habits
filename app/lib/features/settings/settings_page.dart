@@ -9,6 +9,7 @@ import '../../core/notifier.dart';
 import '../../core/providers.dart';
 import '../../core/updater.dart';
 import '../../data/backup.dart';
+import '../../design/brand_logo.dart';
 import '../../design/glass.dart';
 import '../../design/tokens.dart';
 
@@ -273,6 +274,8 @@ class SettingsPage extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
+                        const PowerHabitsLogo(size: 42),
+                        const SizedBox(width: Sp.x3),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

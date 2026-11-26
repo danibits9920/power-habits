@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../core/providers.dart';
 import '../../data/db.dart';
 import '../../design/glass.dart';
+import '../../design/motion.dart';
 import '../../design/tokens.dart';
 import 'goal_form_sheet.dart';
 
@@ -191,6 +192,7 @@ class _GoalCard extends ConsumerStatefulWidget {
 class _GoalCardState extends ConsumerState<_GoalCard> {
   bool _expanded = false;
   bool _addingStep = false;
+  int _celebrateCount = 0;
   final _stepCtrl = TextEditingController();
 
   @override
@@ -231,17 +233,23 @@ class _GoalCardState extends ConsumerState<_GoalCard> {
   }
 
   Future<void> _adjust(int delta) async {
+    PowerHaptics.check();
     final unlocked = await ref
         .read(goalRepoProvider)
         .adjustProgress(widget.goal.id, delta);
     if (unlocked != null) {
+      PowerHaptics.celebrate();
+      if (mounted) setState(() => _celebrateCount++);
       _showMilestoneSnackBar(unlocked);
     }
   }
 
   Future<void> _toggleStep(GoalStep step) async {
+    PowerHaptics.check();
     final unlocked = await ref.read(goalRepoProvider).toggleStep(step);
     if (unlocked != null) {
+      PowerHaptics.celebrate();
+      if (mounted) setState(() => _celebrateCount++);
       _showMilestoneSnackBar(unlocked);
     }
   }
@@ -306,8 +314,10 @@ class _GoalCardState extends ConsumerState<_GoalCard> {
     final stepsAsync = ref.watch(goalStepsProvider(goal.id));
     final steps = stepsAsync.asData?.value ?? const <GoalStep>[];
 
-    return GlassCard(
-      padding: const EdgeInsets.all(Sp.x5),
+    return CelebrationBurst(
+      triggerCount: _celebrateCount,
+      child: GlassCard(
+        padding: const EdgeInsets.all(Sp.x5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -568,6 +578,7 @@ class _GoalCardState extends ConsumerState<_GoalCard> {
           ),
         ],
       ),
+    ),
     );
   }
 }

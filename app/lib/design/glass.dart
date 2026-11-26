@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'motion.dart';
 import 'tokens.dart';
 
 /// Fondo atmosférico limpio (gris/blanco + halo rosado pastel muy suave detrás del vidrio).
@@ -142,50 +143,83 @@ class GlassSegmented<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pc = context.pc;
+    final reduce = reduceMotionOf(context);
+    final selectedIdx = items.indexWhere((e) => e.$1 == value);
+    final safeIdx = selectedIdx < 0 ? 0 : selectedIdx;
+    final count = items.isEmpty ? 1 : items.length;
+    final alignX = count == 1 ? 0.0 : -1.0 + (2.0 * safeIdx / (count - 1));
+
     return GlassCard(
       padding: const EdgeInsets.all(4),
       radius: Rad.pill,
-      child: Row(
-        children: [
-          for (final (itemValue, label) in items)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(itemValue),
-                behavior: HitTestBehavior.opaque,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
+      child: LayoutBuilder(
+        builder: (_, constraints) {
+          final slotWidth = constraints.maxWidth / count;
+          return SizedBox(
+            height: 40,
+            child: Stack(
+              children: [
+                AnimatedAlign(
+                  alignment: Alignment(alignX, 0),
+                  duration: reduce
+                      ? Duration.zero
+                      : const Duration(milliseconds: 230),
                   curve: Curves.easeOutCubic,
-                  constraints: const BoxConstraints(minHeight: 40),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: value == itemValue
-                        ? pc.glassFillStrong
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(Rad.pill),
-                    boxShadow: value == itemValue
-                        ? [
-                            BoxShadow(
-                              color: pc.ink.withValues(alpha: 0.06),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Text(
-                    label,
-                    style: context.tt.labelMedium?.copyWith(
-                      fontSize: 13,
-                      fontWeight: value == itemValue
-                          ? FontWeight.w700
-                          : FontWeight.w500,
-                      color: value == itemValue ? pc.ink : pc.inkMuted,
+                  child: Container(
+                    width: slotWidth,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: pc.glassFillStrong,
+                      borderRadius: BorderRadius.circular(Rad.pill),
+                      boxShadow: [
+                        BoxShadow(
+                          color: pc.ink.withValues(alpha: 0.07),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ),
+                Row(
+                  children: [
+                    for (final (itemValue, label) in items)
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            if (value != itemValue) {
+                              PowerHaptics.tap();
+                              onChanged(itemValue);
+                            }
+                          },
+                          behavior: HitTestBehavior.opaque,
+                          child: Center(
+                            child: AnimatedDefaultTextStyle(
+                              duration: reduce
+                                  ? Duration.zero
+                                  : const Duration(milliseconds: 180),
+                              style:
+                                  (context.tt.labelMedium ?? const TextStyle())
+                                      .copyWith(
+                                        fontSize: 13,
+                                        fontWeight: value == itemValue
+                                            ? FontWeight.w700
+                                            : FontWeight.w500,
+                                        color: value == itemValue
+                                            ? pc.ink
+                                            : pc.inkMuted,
+                                      ),
+                              child: Text(label),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
             ),
-        ],
+          );
+        },
       ),
     );
   }

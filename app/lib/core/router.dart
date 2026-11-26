@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../design/motion.dart';
 import '../design/tokens.dart';
 
 /// Rutas declarativas de Power Habits.
@@ -182,17 +183,54 @@ class _FloatingGlassNavBar extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: Row(
-                    children: [
-                      for (var i = 0; i < tabs.length; i++)
-                        Expanded(
-                          child: _FloatingNavPillButton(
-                            item: tabs[i],
-                            selected: i == currentIndex,
-                            onTap: () => onSelect(i),
-                          ),
+                  child: LayoutBuilder(
+                    builder: (_, constraints) {
+                      final count = tabs.length;
+                      final slotW = constraints.maxWidth / count;
+                      final alignX = count <= 1
+                          ? 0.0
+                          : -1.0 + (2.0 * currentIndex / (count - 1));
+                      final reduce = reduceMotionOf(context);
+                      return SizedBox(
+                        height: 52,
+                        child: Stack(
+                          children: [
+                            AnimatedAlign(
+                              alignment: Alignment(alignX, 0),
+                              duration: reduce
+                                  ? Duration.zero
+                                  : const Duration(milliseconds: 260),
+                              curve: Curves.easeOutCubic,
+                              child: Container(
+                                width: slotW,
+                                height: 52,
+                                decoration: BoxDecoration(
+                                  color: pc.neon,
+                                  borderRadius: BorderRadius.circular(Rad.pill),
+                                ),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                for (var i = 0; i < tabs.length; i++)
+                                  Expanded(
+                                    child: _FloatingNavPillButton(
+                                      item: tabs[i],
+                                      selected: i == currentIndex,
+                                      onTap: () {
+                                        if (i != currentIndex) {
+                                          PowerHaptics.tap();
+                                        }
+                                        onSelect(i);
+                                      },
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
                         ),
-                    ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -230,33 +268,34 @@ class _FloatingNavPillButton extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(Rad.pill),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic,
+          child: Container(
             constraints: const BoxConstraints(minHeight: 52, minWidth: 48),
             padding: const EdgeInsets.symmetric(horizontal: Sp.x2, vertical: 6),
-            decoration: BoxDecoration(
-              color: selected ? pc.neon : Colors.transparent,
-              borderRadius: BorderRadius.circular(Rad.pill),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(item.icon, size: 19, color: fg),
-                const SizedBox(height: 3),
-                Text(
-                  item.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: tt.labelMedium?.copyWith(
-                    fontSize: 11.5,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                    color: fg,
-                    height: 1.1,
+            child: AnimatedScale(
+              scale: selected && !reduceMotionOf(context) ? 1.03 : 1.0,
+              duration: reduceMotionOf(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 180),
+              curve: Curves.easeOutBack,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(item.icon, size: 19, color: fg),
+                  const SizedBox(height: 3),
+                  Text(
+                    item.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: tt.labelMedium?.copyWith(
+                      fontSize: 11.5,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                      color: fg,
+                      height: 1.1,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

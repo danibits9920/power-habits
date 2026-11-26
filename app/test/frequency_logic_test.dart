@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:power_habits/core/dates.dart';
 import 'package:power_habits/core/frequency.dart';
 import 'package:power_habits/core/providers.dart';
 import 'package:power_habits/data/db.dart';
@@ -397,5 +398,79 @@ void main() {
       expect(items.single.anchorDate, '2026-11-28');
       await db.close();
     });
+
+    test(
+      'interdiaria con limite semanal, cada 3 dias y modo flexible X veces/semana',
+      () {
+        final now = DateTime(2026, 11, 23).toIso8601String(); // Lunes 23 Nov
+        final alt3DaysPerWeek = Routine(
+          id: 'alt-3d',
+          title: 'Skincare noche',
+          itemType: 'routine',
+          context: 'personal',
+          timeSlot: 'night',
+          frequencyType: 'alternate',
+          weekdaysMask: '1,3,5',
+          anchorDate: '2026-11-23',
+          reminderTimes: '',
+          allowQuickNote: true,
+          sortOrder: 0,
+          createdAt: now,
+          updatedAt: now,
+          deletedAt: null,
+        );
+        expect(routineAppliesOnDate(alt3DaysPerWeek, DateTime(2026, 11, 23)), isTrue); // Lun
+        expect(routineAppliesOnDate(alt3DaysPerWeek, DateTime(2026, 11, 24)), isFalse); // Mar
+        expect(routineAppliesOnDate(alt3DaysPerWeek, DateTime(2026, 11, 25)), isTrue); // Mié
+        expect(routineAppliesOnDate(alt3DaysPerWeek, DateTime(2026, 11, 27)), isTrue); // Vie
+        expect(routineAppliesOnDate(alt3DaysPerWeek, DateTime(2026, 11, 29)), isFalse); // Dom
+        expect(frequencyLabel(alt3DaysPerWeek), contains('3d/sem'));
+
+        final every3Days = Routine(
+          id: 'e3d',
+          title: 'Exfoliante',
+          itemType: 'routine',
+          context: 'personal',
+          timeSlot: 'night',
+          frequencyType: 'every_3_days',
+          weekdaysMask: '1,2,3,4,5,6,7',
+          anchorDate: '2026-11-23',
+          reminderTimes: '',
+          allowQuickNote: true,
+          sortOrder: 0,
+          createdAt: now,
+          updatedAt: now,
+          deletedAt: null,
+        );
+        expect(routineAppliesOnDate(every3Days, DateTime(2026, 11, 23)), isTrue);
+        expect(routineAppliesOnDate(every3Days, DateTime(2026, 11, 24)), isFalse);
+        expect(routineAppliesOnDate(every3Days, DateTime(2026, 11, 25)), isFalse);
+        expect(routineAppliesOnDate(every3Days, DateTime(2026, 11, 26)), isTrue);
+
+        final weeklyFlex = Routine(
+          id: 'wx',
+          title: 'Salir a correr',
+          itemType: 'routine',
+          context: 'personal',
+          timeSlot: 'afternoon',
+          frequencyType: 'weekly_x',
+          weekdaysMask: '4',
+          anchorDate: '2026-11-23',
+          reminderTimes: '',
+          allowQuickNote: true,
+          sortOrder: 0,
+          createdAt: now,
+          updatedAt: now,
+          deletedAt: null,
+        );
+        expect(weeklyTargetCount(weeklyFlex), 4);
+        expect(frequencyLabel(weeklyFlex), '4 veces/semana');
+        expect(routineAppliesOnDate(weeklyFlex, DateTime(2026, 11, 26)), isTrue);
+        expect(alternateDaysPreset(3), {1, 3, 5});
+        final (mon, sun) = isoWeekBounds(DateTime(2026, 11, 26));
+        expect(dayStr(mon), '2026-11-23');
+        expect(dayStr(sun), '2026-11-29');
+      },
+    );
   });
 }

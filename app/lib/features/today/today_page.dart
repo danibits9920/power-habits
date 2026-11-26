@@ -9,6 +9,7 @@ import '../../core/frequency.dart';
 import '../../core/providers.dart';
 import '../../data/db.dart';
 import '../../design/glass.dart';
+import '../../design/motion.dart';
 import '../../design/tokens.dart';
 import 'note_sheet.dart';
 import 'routine_form_sheet.dart';
@@ -60,7 +61,7 @@ class TodayPage extends ConsumerWidget {
             _CreateOptionCard(
               icon: LucideIcons.repeat,
               title: 'Nueva rutina',
-              subtitle: 'Hábito diario, interdiario o en días fijos',
+              subtitle: 'Diario, interdiario, días fijos o X veces/sem',
               onTap: () => Navigator.of(ctx).pop('routine'),
             ),
             const SizedBox(height: Sp.x3),
@@ -266,15 +267,24 @@ class TodayPage extends ConsumerWidget {
     final filter = ref.watch(contextFilterProvider);
     final routinesAsync = ref.watch(routinesStreamProvider);
     final logsAsync = ref.watch(logsForSelectedDateProvider);
+    final weekLogsAsync = ref.watch(logsForSelectedWeekProvider);
 
     final dateKey = dayStr(selectedDate);
     final isToday = daysBetween(today, selectedDate) == 0;
 
     final allRoutines = routinesAsync.value ?? const <Routine>[];
     final logsList = logsAsync.value ?? const <RoutineLog>[];
+    final weekLogs = weekLogsAsync.value ?? const <RoutineLog>[];
     final logsByRoutineId = {
       for (final log in logsList) log.routineId: log,
     };
+    final weeklyDoneCounts = <String, int>{};
+    for (final wl in weekLogs) {
+      if (wl.completed) {
+        weeklyDoneCounts[wl.routineId] =
+            (weeklyDoneCounts[wl.routineId] ?? 0) + 1;
+      }
+    }
 
     final contextMatched =
         allRoutines.where((r) => _matchesFilter(r, filter)).toList();
@@ -500,6 +510,7 @@ class TodayPage extends ConsumerWidget {
                         routine: routine,
                         isCompleted: log?.completed ?? false,
                         note: log?.note,
+                        weeklyDoneCount: weeklyDoneCounts[routine.id] ?? 0,
                         onToggle: () =>
                             _toggleRoutine(context, ref, routine, dateKey),
                         onTapCard: () => _openRoutineForm(
@@ -648,7 +659,7 @@ class _DayPill extends StatelessWidget {
   }
 }
 
-class _DailyProgressCard extends StatelessWidget {
+class _DailyProgressCard extends StatefulWidget {
   const _DailyProgressCard({
     required this.isToday,
     required this.completedCount,
@@ -666,62 +677,83 @@ class _DailyProgressCard extends StatelessWidget {
   final int progressPct;
 
   @override
+  State<_DailyProgressCard> createState() => _DailyProgressCardState();
+}
+
+class _DailyProgressCardState extends State<_DailyProgressCard> {
+  int _celebrateCount = 0;
+
+  @override
+  void didUpdateWidget(covariant _DailyProgressCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.totalCount > 0 &&
+        widget.progressPct == 100 &&
+        oldWidget.progressPct < 100) {
+      PowerHaptics.celebrate();
+      setState(() => _celebrateCount++);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final pc = context.pc;
     final tt = context.tt;
 
-    final skippedLabel = skippedCount == 1
-        ? (isToday ? '1 no toca hoy' : '1 no toca este día')
-        : (isToday
-            ? '$skippedCount no tocan hoy'
-            : '$skippedCount no tocan este día');
+    final skippedLabel = widget.skippedCount == 1
+        ? (widget.isToday ? '1 no toca hoy' : '1 no toca este día')
+        : (widget.isToday
+            ? '${widget.skippedCount} no tocan hoy'
+            : '${widget.skippedCount} no tocan este día');
 
-    return GlassCard(
-      padding: const EdgeInsets.all(Sp.x5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Expanded(
-                child: Text(
-                  isToday ? 'Progreso de hoy' : 'Progreso del día',
-                  style: tt.titleMedium,
+    return CelebrationBurst(
+      triggerCount: _celebrateCount,
+      child: GlassCard(
+        padding: const EdgeInsets.all(Sp.x5),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.isToday ? 'Progreso de hoy' : 'Progreso del día',
+                    style: tt.titleMedium,
+                  ),
                 ),
-              ),
-              Text(
-                '$progressPct%',
-                style: TextStyle(
-                  fontFamily: 'Outfit',
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  fontFeatures: kTabular,
-                  color: pc.ink,
+                AnimatedPercentText(
+                  value: widget.progressPct,
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    fontFeatures: kTabular,
+                    color: pc.ink,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: Sp.x3),
-          NeonProgressBar(progress: progressRatio, height: 10),
-          const SizedBox(height: Sp.x3),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  '$completedCount de $totalCount completadas',
-                  style: tt.bodySmall?.copyWith(fontFeatures: kTabular),
+              ],
+            ),
+            const SizedBox(height: Sp.x3),
+            NeonProgressBar(progress: widget.progressRatio, height: 10),
+            const SizedBox(height: Sp.x3),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${widget.completedCount} de ${widget.totalCount} completadas',
+                    style: tt.bodySmall?.copyWith(fontFeatures: kTabular),
+                  ),
                 ),
-              ),
-              if (skippedCount > 0)
-                Text(
-                  skippedLabel,
-                  style: tt.bodySmall?.copyWith(fontFeatures: kTabular),
-                ),
-            ],
-          ),
-        ],
+                if (widget.skippedCount > 0)
+                  Text(
+                    skippedLabel,
+                    style: tt.bodySmall?.copyWith(fontFeatures: kTabular),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -775,6 +807,7 @@ class _RoutineItemCard extends StatelessWidget {
     required this.routine,
     required this.isCompleted,
     required this.note,
+    required this.weeklyDoneCount,
     required this.onToggle,
     required this.onTapCard,
     this.onTapNote,
@@ -783,6 +816,7 @@ class _RoutineItemCard extends StatelessWidget {
   final Routine routine;
   final bool isCompleted;
   final String? note;
+  final int weeklyDoneCount;
   final VoidCallback onToggle;
   final VoidCallback onTapCard;
   final VoidCallback? onTapNote;
@@ -791,15 +825,24 @@ class _RoutineItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final pc = context.pc;
     final tt = context.tt;
+    final reduce = reduceMotionOf(context);
 
     final reminders = parseReminderTimes(routine.reminderTimes);
-    final freqText = frequencyLabel(routine);
+    final String freqText;
+    if (routine.frequencyType == 'weekly_x') {
+      final target = weeklyTargetCount(routine);
+      freqText = weeklyDoneCount >= target
+          ? '$weeklyDoneCount/$target esta semana · Meta cumplida'
+          : '$weeklyDoneCount/$target esta semana';
+    } else {
+      freqText = frequencyLabel(routine);
+    }
     final metaLine = reminders.isEmpty
         ? freqText
         : '$freqText · ${reminders.join(', ')}';
     final hasNote = note != null && note!.trim().isNotEmpty;
 
-    return GlassCard(
+    final card = GlassCard(
       padding: const EdgeInsets.fromLTRB(Sp.x1, Sp.x2, Sp.x2, Sp.x2),
       onTap: onTapCard,
       child: Column(
@@ -808,7 +851,7 @@ class _RoutineItemCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              // Área táctil 48x48dp para completar
+              // Área táctil 48x48dp para completar con rebote spring
               Semantics(
                 checked: isCompleted,
                 button: true,
@@ -822,28 +865,45 @@ class _RoutineItemCard extends StatelessWidget {
                     width: 48,
                     height: 48,
                     child: Center(
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        curve: Curves.easeOutCubic,
-                        width: 26,
-                        height: 26,
-                        decoration: BoxDecoration(
-                          color: isCompleted ? pc.neon : pc.glassFillStrong,
-                          borderRadius: BorderRadius.circular(Rad.sm),
-                          border: Border.all(
-                            color: isCompleted
-                                ? pc.neon
-                                : pc.inkMuted.withValues(alpha: 0.45),
-                            width: 1.5,
+                      child: AnimatedScale(
+                        scale: isCompleted && !reduce ? 1.06 : 1.0,
+                        duration: reduce
+                            ? Duration.zero
+                            : const Duration(milliseconds: 220),
+                        curve: Curves.easeOutBack,
+                        child: AnimatedContainer(
+                          duration: reduce
+                              ? Duration.zero
+                              : const Duration(milliseconds: 180),
+                          curve: Curves.easeOutCubic,
+                          width: 26,
+                          height: 26,
+                          decoration: BoxDecoration(
+                            color: isCompleted ? pc.neon : pc.glassFillStrong,
+                            borderRadius: BorderRadius.circular(Rad.sm),
+                            border: Border.all(
+                              color: isCompleted
+                                  ? pc.neon
+                                  : pc.inkMuted.withValues(alpha: 0.45),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: AnimatedSwitcher(
+                            duration: reduce
+                                ? Duration.zero
+                                : const Duration(milliseconds: 150),
+                            child: isCompleted
+                                ? Icon(
+                                    LucideIcons.check,
+                                    key: const ValueKey('done'),
+                                    size: 16,
+                                    color: pc.onNeon,
+                                  )
+                                : const SizedBox.shrink(
+                                    key: ValueKey('empty'),
+                                  ),
                           ),
                         ),
-                        child: isCompleted
-                            ? Icon(
-                                LucideIcons.check,
-                                size: 16,
-                                color: pc.onNeon,
-                              )
-                            : null,
                       ),
                     ),
                   ),
@@ -955,6 +1015,76 @@ class _RoutineItemCard extends StatelessWidget {
             ),
         ],
       ),
+    );
+
+    return Dismissible(
+      key: ValueKey('swipe_${routine.id}'),
+      direction: onTapNote != null
+          ? DismissDirection.horizontal
+          : DismissDirection.startToEnd,
+      dismissThresholds: const {
+        DismissDirection.startToEnd: 0.28,
+        DismissDirection.endToStart: 0.28,
+      },
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          onToggle();
+        } else if (direction == DismissDirection.endToStart &&
+            onTapNote != null) {
+          PowerHaptics.tap();
+          onTapNote!();
+        }
+        return false;
+      },
+      background: Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: Sp.x5),
+        decoration: BoxDecoration(
+          color: pc.neon,
+          borderRadius: BorderRadius.circular(Rad.lg),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isCompleted ? LucideIcons.rotateCcw : LucideIcons.check,
+              size: 18,
+              color: pc.onNeon,
+            ),
+            const SizedBox(width: Sp.x2),
+            Text(
+              isCompleted ? 'Desmarcar' : 'Completar',
+              style: tt.labelMedium?.copyWith(
+                color: pc.onNeon,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+      secondaryBackground: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: Sp.x5),
+        decoration: BoxDecoration(
+          color: pc.pinkSoft,
+          borderRadius: BorderRadius.circular(Rad.lg),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Nota rápida',
+              style: tt.labelMedium?.copyWith(
+                color: pc.onPinkSoft,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(width: Sp.x2),
+            Icon(LucideIcons.fileText, size: 18, color: pc.onPinkSoft),
+          ],
+        ),
+      ),
+      child: card,
     );
   }
 }

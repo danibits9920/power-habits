@@ -1,7 +1,7 @@
 name: power_habits
 description: "Power Habits — App móvil personal local-first de hábitos, tareas, metas y logros."
 publish_to: 'none'
-version: 0.2.0+3
+version: 0.3.0+4
 
 environment:
   sdk: ^3.13.0

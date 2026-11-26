@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/db.dart';
 import '../data/repos.dart';
 import 'dates.dart';
+import 'frequency.dart';
 
 /// Filtro de contexto global: 'all' | 'personal' | 'work'
 enum ContextFilter { all, personal, work }
@@ -95,6 +96,14 @@ final routinesStreamProvider = StreamProvider<List<Routine>>(
 final logsForSelectedDateProvider = StreamProvider<List<RoutineLog>>((ref) {
   final date = ref.watch(selectedDateProvider);
   return ref.watch(routineRepoProvider).watchLogsForDate(dayStr(date));
+});
+
+final logsForSelectedWeekProvider = StreamProvider<List<RoutineLog>>((ref) {
+  final date = ref.watch(selectedDateProvider);
+  final (monday, sunday) = isoWeekBounds(date);
+  return ref
+      .watch(routineRepoProvider)
+      .watchLogsInRange(dayStr(monday), dayStr(sunday));
 });
 
 final goalsStreamProvider = StreamProvider<List<Goal>>(

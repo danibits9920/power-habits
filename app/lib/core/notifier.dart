@@ -277,9 +277,16 @@ class PhoneNotifier {
         continue;
       }
 
-      if (routine.frequencyType == 'weekdays') {
-        final weekdays = parseWeekdaysMask(routine.weekdaysMask).toList()
-          ..sort();
+      final weekdaysSet = parseWeekdaysMask(routine.weekdaysMask);
+      final useWeekdaySchedule =
+          routine.frequencyType == 'weekdays' ||
+          ((routine.frequencyType == 'alternate' ||
+                  routine.frequencyType == 'every_3_days') &&
+              weekdaysSet.isNotEmpty &&
+              weekdaysSet.length < 7);
+
+      if (useWeekdaySchedule) {
+        final weekdays = weekdaysSet.toList()..sort();
         for (final weekday in weekdays) {
           if (slot >= 60) break;
           final scheduled = _nextWeekdayTime(weekday, hour, minute);

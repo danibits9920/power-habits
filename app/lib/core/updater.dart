@@ -10,15 +10,16 @@ import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import '../design/brand_logo.dart';
 import '../design/glass.dart';
 import '../design/tokens.dart';
 
-const kAppVersion = '0.2.0';
+const kAppVersion = '0.3.0';
 const kReleasesRepo = 'danibits9920/power-habits';
 const kReleaseNotes = <String>[
-  '3 widgets interactivos para gestionar fuera de la app: Hoy (4×3), Metas (+1 directo) y Mini (2×2).',
-  'Marca rutinas, cambia el filtro Todo/Personal/Laboral y avanza tus metas con +1 sin abrir la app.',
-  'Sincronización bidireccional automática con SQLite y desbloqueo de hitos/logros al volver a abrir.',
+  'Nuevo logo único de Power Habits (isotipo rayo + check minimalista) con ícono adaptativo Android y splash animado breve.',
+  'Frecuencia Interdiaria mejorada: elige Cada 2 o 3 días y cuántos días a la semana (2 a 5 días editables), más nuevo modo flexible "X veces/sem".',
+  'Fluidez mejorada: barra inferior y filtro deslizantes con física spring, gestos swipe en tarjetas de Hoy, vibración háptica y micro-celebración al llegar al 100 % o desbloquear hitos.',
 ];
 
 const _updaterChannel = MethodChannel('com.daltex.power_habits/updater');
@@ -235,19 +236,7 @@ class _UpdateHeroBanner extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: pc.pinkSoft,
-                  borderRadius: BorderRadius.circular(Rad.md),
-                ),
-                child: Icon(
-                  LucideIcons.sparkles,
-                  size: 22,
-                  color: pc.onPinkSoft,
-                ),
-              ),
+              const PowerHabitsLogo(size: 48),
               const SizedBox(width: Sp.x3),
               Expanded(
                 child: Column(

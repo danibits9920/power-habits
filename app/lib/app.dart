@@ -12,7 +12,9 @@ import 'core/providers.dart';
 import 'core/router.dart';
 import 'core/updater.dart';
 import 'data/db.dart';
+import 'design/brand_logo.dart';
 import 'design/glass.dart';
+import 'design/motion.dart';
 import 'design/tokens.dart';
 import 'features/goals/goal_form_sheet.dart';
 import 'features/goals/goals_page.dart';
@@ -51,10 +53,12 @@ class _PowerHabitsAppState extends ConsumerState<PowerHabitsApp> {
   AppLifecycleListener? _lifecycle;
   BuildContext? _appInnerContext;
   bool _openingQuickAdd = false;
+  late bool _showSplash;
 
   @override
   void initState() {
     super.initState();
+    _showSplash = widget.enableStartupHooks;
     _router = _createRouter();
     if (widget.enableStartupHooks) {
       _lifecycle = AppLifecycleListener(
@@ -248,8 +252,20 @@ class _PowerHabitsAppState extends ConsumerState<PowerHabitsApp> {
       routerConfig: _router,
       builder: (context, child) {
         _appInnerContext = context;
+        final skipSplash = !_showSplash || reduceMotionOf(context);
         return SoftGlassBackground(
-          child: child ?? const SizedBox.shrink(),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              child ?? const SizedBox.shrink(),
+              if (!skipSplash)
+                PowerSplashOverlay(
+                  onFinished: () {
+                    if (mounted) setState(() => _showSplash = false);
+                  },
+                ),
+            ],
+          ),
         );
       },
     );
