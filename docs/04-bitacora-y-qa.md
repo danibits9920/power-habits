@@ -94,9 +94,16 @@ Registro vivo de todo lo que vamos conversando, descubriendo y decidiendo durant
 - **Compuertas superadas:** `flutter analyze` (0 issues), `flutter test` (29/29 verdes) y `flutter build apk --release --target-platform android-arm64` (`24.1 MB`).
 - **Acta completa:** Ver [07-veredicto-orquestador.md](./07-veredicto-orquestador.md) — Veredicto: **`APROBADO`**.
 
+### Ronda 9 — Iteraciones post-lanzamiento (`v0.1.1`, `v0.2.0`, `v0.3.0`, `v0.3.1`) y Propuesta de Logo
+- **`v0.1.1` (Modales por encima de tabs):** Todos los bottom sheets, diálogos y date/time pickers usan `useRootNavigator: true` y `SafeArea(top: false)` para no quedar detrás de la barra flotante.
+- **`v0.2.0` (Widgets interactivos):** 3 widgets Android Soft Glass (`4×3 Hoy`, `4×2 Metas`, `2×2 Mini`) con acciones directas fuera de la app y sincronización bidireccional con SQLite.
+- **`v0.3.0` (Interacciones, Interdiaria flexible y `X veces/sem`):** Micro-animaciones (`motion.dart`), `Interdiaria` configurable con días semanales editables (`Continua` o `2d/3d/4d/5d`) + modo flexible `X veces/sem`, y primer logo vectorizado + splash.
+- **`v0.3.1` (Rendimiento 60fps + Swipe horizontal):** Eliminado el `BackdropFilter` apilado en cada `GlassCard` durante el scroll (causa principal de lag en Android), añadido `RepaintBoundary` y navegación `PageView` 1:1 entre `Hoy ↔ Metas ↔ Progreso` (`34/34` tests verdes).
+- **Logo v2 (Propuesta visual en Stitch + Concept Board):** Como el logo manual de `v0.3.0` no lució tan refinado como se esperaba, se preparó una propuesta visual profesional en Google Stitch v2 (`projects/2943801740701979031`) y en [power-habits-logo-propuesta.png](./power-habits-logo-propuesta.png) para aprobarla antes de empaquetarla como ícono nativo real en `v0.3.2`.
+
 ---
 
-### Próximos pasos tras Release `v0.1.0`
-1. Instalar `power-habits-v0.1.0-arm64.apk` en el dispositivo Android y validar el uso real diario (notificaciones, widget 4×2 y auto-updater al publicar `v0.2.0`).
+### Próximos pasos tras Release `v0.3.1`
+1. Aprobar el nuevo diseño del logo (Stitch v2 / concept board) e integrarlo fielmente como `ic_launcher` + splash en **`v0.3.2`**.
 2. Configurar los secretos de firma (`ANDROID_KEYSTORE_BASE64`, etc.) en GitHub Actions si se desea firma fija de release distinta a la firma debug reproducible.
 3. Fase 4 (futuro): añadir `SupabaseSyncService` sobre los repositorios y esquema UUID ya implementado sin reescribir la UI.
